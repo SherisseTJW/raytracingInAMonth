@@ -1,5 +1,9 @@
 use core::fmt::{Display, Formatter, Result};
 
+pub type Point = Vector;
+pub type Color = Vector;
+
+#[derive(Clone, Copy)]
 pub struct Vector {
     x: f64,
     y: f64,
@@ -44,6 +48,14 @@ impl Vector {
             x: new_x,
             y: new_y,
             z: new_z,
+        }
+    }
+
+    pub fn negate(&self) -> Vector {
+        Vector {
+            x: -self.x,
+            y: -self.y,
+            z: -self.z,
         }
     }
 
