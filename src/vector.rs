@@ -51,6 +51,20 @@ impl Vector {
         }
     }
 
+    pub fn subv(&self, vector: Vector) -> Vector {
+        let vector_point = vector.get_point();
+
+        let new_x = self.x - vector_point.0;
+        let new_y = self.y - vector_point.1;
+        let new_z = self.z - vector_point.2;
+
+        Vector {
+            x: new_x,
+            y: new_y,
+            z: new_z,
+        }
+    }
+
     pub fn negate(&self) -> Vector {
         Vector {
             x: -self.x,
@@ -100,13 +114,9 @@ pub fn cross_product(u: Vector, v: Vector) -> Vector {
     }
 }
 
-pub fn dot_product(u: Vector, v: Vector) -> Vector {
+pub fn dot_product(u: Vector, v: Vector) -> f64 {
     let (u1, u2, u3) = u.get_point();
     let (v1, v2, v3) = v.get_point();
 
-    Vector {
-        x: u1 * v1,
-        y: u2 * v2,
-        z: u3 * v3,
-    }
+    (u1 * v1) + (u2 * v2) + (u3 * v3)
 }
