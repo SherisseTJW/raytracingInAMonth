@@ -10,7 +10,7 @@ use objects::{
     sphere::Sphere,
 };
 use ray::{Ray, blue_gradient_vertical};
-use utils::constants::F_INF;
+use utils::{constants::F_INF, interval::Interval};
 use vector::{Color, Point, Vector};
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
@@ -47,6 +47,8 @@ fn main() {
     world.add_hittable(Box::new(sphere1));
     world.add_hittable(Box::new(sphere2));
 
+    let world_interval: Interval = Interval::new(0.0, F_INF);
+
     for i in 0..IMAGE_HEIGHT {
         eprintln!("Scanning line {}.. {} remaining", (i), (IMAGE_HEIGHT - i));
 
@@ -58,7 +60,7 @@ fn main() {
             let ray_direction = pixel_centre.addv(camera_point.negate());
 
             let ray: Ray = Ray::new(camera_point, ray_direction);
-            let hit_record = world.hit(&ray, 0.0, F_INF);
+            let hit_record = world.hit(&ray, &world_interval);
 
             match hit_record {
                 Some(hit) => {

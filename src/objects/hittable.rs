@@ -1,10 +1,11 @@
 use crate::{
     ray::Ray,
+    utils::interval::Interval,
     vector::{Point, Vector, dot_product},
 };
 
 pub trait Hittable {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord>;
+    fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord>;
 }
 
 #[derive(Clone, Copy)]
@@ -63,11 +64,11 @@ impl HittableList {
 impl Hittable for HittableList {
     // Return the HitRecord of the closest object that was hit
     // ( Blocks objects behind )
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord> {
         let mut nearest_hit_record: Option<HitRecord> = None;
 
         for hittable in &self.hittable_list {
-            if let Some(cur_record) = hittable.hit(ray, t_min, t_max) {
+            if let Some(cur_record) = hittable.hit(ray, interval) {
                 match nearest_hit_record {
                     Some(nearest_record) => {
                         let nearest_t = nearest_record.get_t();

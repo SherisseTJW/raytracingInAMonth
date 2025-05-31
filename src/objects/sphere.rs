@@ -1,5 +1,6 @@
 use crate::{
     ray::Ray,
+    utils::interval::Interval,
     vector::{Point, dot_product},
 };
 
@@ -58,7 +59,7 @@ impl Sphere {
 }
 
 impl Hittable for Sphere {
-    fn hit(&self, ray: &Ray, t_min: f64, t_max: f64) -> Option<HitRecord> {
+    fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord> {
         let ray_direction = ray.get_direction();
         let ray_origin = ray.get_origin();
 
@@ -79,10 +80,9 @@ impl Hittable for Sphere {
             let neg_root = (h - h_discriminant_sqrt) / a;
             let pos_root = (h + h_discriminant_sqrt) / a;
 
-            if (neg_root > t_min) && (neg_root < t_max) {
+            if interval.surrounds(neg_root) {
                 let surface_vec = ray.at(neg_root);
                 let surface_normal_vec = surface_vec.subv(self.get_centre()).unit();
-                // let (x, y, z) = surface_normal_vec.get_point();
 
                 Some(HitRecord::new(
                     surface_vec,
@@ -90,7 +90,7 @@ impl Hittable for Sphere {
                     neg_root,
                     ray,
                 ))
-            } else if (pos_root > t_min) && (pos_root < t_max) {
+            } else if interval.surrounds(pos_root) {
                 let surface_vec = ray.at(pos_root);
                 let surface_normal_vec = surface_vec.subv(self.get_centre()).unit();
                 // let (x, y, z) = surface_normal_vec.get_point();
