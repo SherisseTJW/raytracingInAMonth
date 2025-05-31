@@ -37,6 +37,10 @@ impl HitRecord {
     pub fn get_t(&self) -> f64 {
         self.t
     }
+
+    pub fn get_normal(&self) -> Vector {
+        self.normal
+    }
 }
 
 pub struct HittableList {
@@ -63,18 +67,17 @@ impl Hittable for HittableList {
         let mut nearest_hit_record: Option<HitRecord> = None;
 
         for hittable in &self.hittable_list {
-            match hittable.hit(ray, t_min, t_max) {
-                Some(cur_record) => match nearest_hit_record {
+            if let Some(cur_record) = hittable.hit(ray, t_min, t_max) {
+                match nearest_hit_record {
                     Some(nearest_record) => {
                         let nearest_t = nearest_record.get_t();
 
-                        if cur_record.get_t() > nearest_t {
+                        if cur_record.get_t() < nearest_t {
                             nearest_hit_record = Some(cur_record);
                         }
                     }
                     None => nearest_hit_record = Some(cur_record),
-                },
-                None => {}
+                }
             }
         }
 

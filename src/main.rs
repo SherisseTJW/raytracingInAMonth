@@ -1,11 +1,16 @@
 mod objects;
 mod ray;
+mod utils;
 mod vector;
 
 use image::{Rgb, RgbImage};
 
-use objects::sphere::Sphere;
+use objects::{
+    hittable::{Hittable, HittableList},
+    sphere::Sphere,
+};
 use ray::{Ray, blue_gradient_vertical};
+use utils::constants::F_INF;
 use vector::{Color, Point, Vector};
 
 const ASPECT_RATIO: f64 = 16.0 / 9.0;
@@ -35,7 +40,12 @@ fn main() {
 
     let mut img = RgbImage::new(IMAGE_WIDTH, IMAGE_HEIGHT);
 
-    let sphere: Sphere = Sphere::new(Point::new(0.0, 0.0, -1.0), 0.5);
+    let sphere1: Sphere = Sphere::new(Point::new(0.0, 0.0, -1.0), 0.5);
+    let sphere2: Sphere = Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0);
+
+    let mut world: HittableList = HittableList::new();
+    world.add_hittable(Box::new(sphere1));
+    world.add_hittable(Box::new(sphere2));
 
     for i in 0..IMAGE_HEIGHT {
         eprintln!("Scanning line {}.. {} remaining", (i), (IMAGE_HEIGHT - i));
@@ -48,24 +58,44 @@ fn main() {
             let ray_direction = pixel_centre.addv(camera_point.negate());
 
             let ray: Ray = Ray::new(camera_point, ray_direction);
-            let t = sphere.hit_at(&ray);
+            let hit_record = world.hit(&ray, 0.0, F_INF);
 
-            if t > 0.0 {
-                let surface_vec = ray.at(t);
+            match hit_record {
+                Some(hit) => {
+                    let surface_normal_vec = hit.get_normal();
+                    let (x, y, z) = surface_normal_vec.get_point();
 
-                let surface_normal_vec = surface_vec.subv(sphere.get_centre()).unit();
-                let (x, y, z) = surface_normal_vec.get_point();
-
-                // NOTE: Normalised so all x, y, and z in the range of [-1.0, 1.0]
-                // so, add 1 to move the range to [0.0, 2.0]
-                // and scale by 0.5 to get a range of [0.0, 1.0]
-                // which valid RGB values have to lie within
-                let color: Color = Color::new(x + 1.0, y + 1.0, z + 1.0).scale(0.5);
-                img.put_pixel(j, i, Rgb(color.to_color()));
-            } else {
-                let color: Color = blue_gradient_vertical(ray);
-                img.put_pixel(j, i, Rgb(color.to_color()));
+                    // NOTE: normalised so all x, y, and z in the range of [-1.0, 1.0]
+                    // so, add 1 to move the range to [0.0, 2.0]
+                    // and scale by 0.5 to get a range of [0.0, 1.0]
+                    // which valid rgb values have to lie within
+                    let color: Color = Color::new(x + 1.0, y + 1.0, z + 1.0).scale(0.5);
+                    img.put_pixel(j, i, Rgb(color.to_color()));
+                }
+                None => {
+                    let color: Color = blue_gradient_vertical(ray);
+                    img.put_pixel(j, i, Rgb(color.to_color()));
+                }
             }
+
+            // let t = sphere.hit_at(&ray);
+            //
+            // if t > 0.0 {
+            //     let surface_vec = ray.at(t);
+            //
+            //     let surface_normal_vec = surface_vec.subv(sphere.get_centre()).unit();
+            //     let (x, y, z) = surface_normal_vec.get_point();
+            //
+            //     // NOTE: Normalised so all x, y, and z in the range of [-1.0, 1.0]
+            //     // so, add 1 to move the range to [0.0, 2.0]
+            //     // and scale by 0.5 to get a range of [0.0, 1.0]
+            //     // which valid RGB values have to lie within
+            //     let color: Color = Color::new(x + 1.0, y + 1.0, z + 1.0).scale(0.5);
+            //     img.put_pixel(j, i, Rgb(color.to_color()));
+            // } else {
+            //     let color: Color = blue_gradient_vertical(ray);
+            //     img.put_pixel(j, i, Rgb(color.to_color()));
+            // }
         }
     }
 
