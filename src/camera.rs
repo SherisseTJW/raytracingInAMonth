@@ -3,7 +3,7 @@ use image::{Rgb, RgbImage};
 use crate::{
     objects::hittable::{Hittable, HittableList},
     ray::{Ray, blue_gradient_vertical},
-    utils::{constants::F_INF, interval::Interval},
+    utils::{constants::F_INF, functions::random_double, interval::Interval},
     vector::{Color, Point, Vector},
 };
 
@@ -20,6 +20,8 @@ pub struct Camera {
     pixel100_loc: Point,
     pixel_delta_u: Vector,
     pixel_delta_v: Vector,
+
+    samples_per_pixel: u32,
 }
 
 impl Camera {
@@ -34,16 +36,16 @@ impl Camera {
             );
 
             for j in 0..self.image_width {
-                let pixel_centre = self
-                    .pixel100_loc
-                    .addv(self.pixel_delta_u.scale(j as f64))
-                    .addv(self.pixel_delta_v.scale(i as f64));
+                let mut pixel_color: Color = Color::new(0.0, 0.0, 0.0);
 
-                let ray_direction = pixel_centre.addv(self.centre.negate());
+                for _ in 0..self.samples_per_pixel {
+                    let ray: Ray = self.get_ray(i, j);
+                    let color: Color = self.ray_color(ray, &world);
+                    pixel_color = pixel_color.addv(color);
+                }
 
-                let ray: Ray = Ray::new(self.centre, ray_direction);
-                let color: Color = self.ray_color(ray, &world);
-                img.put_pixel(j, i, Rgb(color.to_color()));
+                pixel_color = pixel_color.scale(1.0 / self.samples_per_pixel as f64);
+                img.put_pixel(j, i, Rgb(pixel_color.to_color()));
             }
         }
 
@@ -53,14 +55,39 @@ impl Camera {
         };
     }
 
-    pub fn ray_color(&self, ray: Ray, world: &HittableList) -> Color {
+    fn get_ray(&self, i: u32, j: u32) -> Ray {
+        let sample_square: Vector = self.sample_square();
+        let (offset_x, offset_y, _) = sample_square.get_point();
+
+        let sample_pixel_centre = self
+            .pixel100_loc
+            .addv(self.pixel_delta_u.scale(j as f64 + offset_x))
+            .addv(self.pixel_delta_v.scale(i as f64 + offset_y));
+
+        let ray_direction = sample_pixel_centre.subv(self.centre);
+
+        Ray::new(self.centre, ray_direction)
+    }
+
+    fn sample_square(&self) -> Vector {
+        Vector::new(random_double() - 0.5, random_double() - 0.5, 0.0)
+    }
+
+    fn ray_color(&self, ray: Ray, world: &HittableList) -> Color {
         let world_interval: Interval = Interval::new(0.0, F_INF);
         let hit_record = world.hit(&ray, &world_interval);
+
+        let intensity = Interval::new(0.000, 0.999);
 
         match hit_record {
             Some(hit) => {
                 let surface_normal_vec = hit.get_normal();
                 let (x, y, z) = surface_normal_vec.get_point();
+
+                // let r = 256.0 * intensity.clamp(x);
+                // let g = 256.0 * intensity.clamp(y);
+                // let b = 256.0 * intensity.clamp(z);
+                // Color::new(r, g, b)
 
                 // NOTE: normalised so all x, y, and z in the range of [-1.0, 1.0]
                 // so, add 1 to move the range to [0.0, 2.0]
@@ -98,6 +125,8 @@ impl Default for Camera {
         let pixel00_loc: Point =
             viewport_upper_left.addv(pixel_delta_u.addv(pixel_delta_v).scale(0.5));
 
+        let samples_per_pixel: u32 = 100;
+
         Camera {
             aspect_ratio,
             image_width,
@@ -109,6 +138,7 @@ impl Default for Camera {
             pixel100_loc: pixel00_loc,
             pixel_delta_u,
             pixel_delta_v,
+            samples_per_pixel,
         }
     }
 }

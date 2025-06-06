@@ -18,6 +18,16 @@ impl Interval {
         val > self.min && val < self.max
     }
 
+    pub fn clamp(&self, val: f64) -> f64 {
+        if val < self.min {
+            self.min
+        } else if val > self.max {
+            self.max
+        } else {
+            val
+        }
+    }
+
     pub const fn get_empty_interval() -> Interval {
         Interval {
             min: F_INF,

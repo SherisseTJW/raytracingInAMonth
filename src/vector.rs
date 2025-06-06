@@ -1,5 +1,7 @@
 use core::fmt::{Display, Formatter, Result};
 
+use crate::utils::interval::Interval;
+
 pub type Point = Vector;
 pub type Color = Vector;
 
