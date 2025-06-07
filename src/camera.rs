@@ -86,7 +86,8 @@ impl Camera {
                     let surface_normal_vec = hit.get_normal();
 
                     let bounce_ray_direction: Vector =
-                        Vector::get_random_unit_vector_on_hemisphere(surface_normal_vec);
+                        Vector::get_random_unit_vector_on_hemisphere(surface_normal_vec)
+                            .addv(surface_normal_vec);
                     let bounce_ray: Ray = Ray::new(hit.get_point(), bounce_ray_direction);
 
                     Camera::ray_color(bounce_ray, world, depth - 1).scale(0.5)

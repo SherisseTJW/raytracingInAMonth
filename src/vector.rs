@@ -129,7 +129,15 @@ impl Vector {
             }
         }
 
-        [f(self.x), f(self.y), f(self.z)]
+        fn linear_to_gamma(val: f64) -> f64 {
+            if val > 0.0 { val.sqrt() } else { 0.0 }
+        }
+
+        let r = linear_to_gamma(self.x);
+        let g = linear_to_gamma(self.y);
+        let b = linear_to_gamma(self.z);
+
+        [f(r), f(g), f(b)]
     }
 }
 
