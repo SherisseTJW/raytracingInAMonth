@@ -35,6 +35,10 @@ impl HitRecord {
         }
     }
 
+    pub fn get_point(&self) -> Point {
+        self.point
+    }
+
     pub fn get_t(&self) -> f64 {
         self.t
     }

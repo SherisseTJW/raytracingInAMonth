@@ -1,6 +1,6 @@
 use core::fmt::{Display, Formatter, Result};
 
-use crate::utils::interval::Interval;
+use crate::utils::functions::{random_double, random_double_in_range};
 
 pub type Point = Vector;
 pub type Color = Vector;
@@ -17,17 +17,55 @@ impl Vector {
         Vector { x, y, z }
     }
 
-    pub fn get_point(&self) -> (f64, f64, f64) {
+    pub fn get_random_vector(self, min: f64, max: f64) -> Vector {
+        Vector {
+            x: random_double_in_range(min, max),
+            y: random_double_in_range(min, max),
+            z: random_double_in_range(min, max),
+        }
+    }
+
+    pub fn get_random_unit_vector() -> Vector {
+        loop {
+            let cur_vector = Vector::new(
+                random_double_in_range(-1.0, 1.0),
+                random_double_in_range(-1.0, 1.0),
+                random_double_in_range(-1.0, 1.0),
+            );
+            // let cur_vector = self.get_random_vector(-1.0, 1.0);
+            let length_squared = cur_vector.get_length_squared();
+
+            if length_squared <= 1.0 && length_squared > 1e-160 {
+                break cur_vector.scale(1.0 / length_squared.sqrt());
+            }
+        }
+    }
+
+    pub fn get_random_unit_vector_on_hemisphere(normal: Vector) -> Vector {
+        let unit_vector = Vector::get_random_unit_vector();
+
+        if dot_product(unit_vector, normal) > 0.0 {
+            unit_vector
+        } else {
+            unit_vector.negate()
+        }
+    }
+
+    pub fn get_point(self) -> (f64, f64, f64) {
         (self.x, self.y, self.z)
     }
 
-    pub fn get_length(&self) -> f64 {
+    pub fn get_length_squared(self) -> f64 {
+        (self.x * self.x) + (self.y * self.y) + (self.z * self.z)
+    }
+
+    pub fn get_length(self) -> f64 {
         let length_squared = (self.x * self.x) + (self.y * self.y) + (self.z * self.z);
 
         length_squared.sqrt()
     }
 
-    pub fn scale(&self, scalar: f64) -> Vector {
+    pub fn scale(self, scalar: f64) -> Vector {
         let new_x = self.x * scalar;
         let new_y = self.y * scalar;
         let new_z = self.z * scalar;
@@ -39,7 +77,7 @@ impl Vector {
         }
     }
 
-    pub fn addv(&self, vector: Vector) -> Vector {
+    pub fn addv(self, vector: Vector) -> Vector {
         let vector_point = vector.get_point();
 
         let new_x = self.x + vector_point.0;
@@ -53,7 +91,7 @@ impl Vector {
         }
     }
 
-    pub fn subv(&self, vector: Vector) -> Vector {
+    pub fn subv(self, vector: Vector) -> Vector {
         let vector_point = vector.get_point();
 
         let new_x = self.x - vector_point.0;
@@ -67,7 +105,7 @@ impl Vector {
         }
     }
 
-    pub fn negate(&self) -> Vector {
+    pub fn negate(self) -> Vector {
         Vector {
             x: -self.x,
             y: -self.y,
@@ -80,7 +118,7 @@ impl Vector {
         self.scale(1.0 / length)
     }
 
-    pub fn to_color(&self) -> [u8; 3] {
+    pub fn to_color(self) -> [u8; 3] {
         fn f(val: f64) -> u8 {
             if val < 0.0 {
                 0

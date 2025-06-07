@@ -17,11 +17,12 @@ pub struct Camera {
     viewport_height: f64,
 
     centre: Point,
-    pixel100_loc: Point,
+    pixel00_loc: Point,
     pixel_delta_u: Vector,
     pixel_delta_v: Vector,
 
     samples_per_pixel: u32,
+    max_depth: u32,
 }
 
 impl Camera {
@@ -40,7 +41,7 @@ impl Camera {
 
                 for _ in 0..self.samples_per_pixel {
                     let ray: Ray = self.get_ray(i, j);
-                    let color: Color = self.ray_color(ray, &world);
+                    let color: Color = Camera::ray_color(ray, &world, self.max_depth);
                     pixel_color = pixel_color.addv(color);
                 }
 
@@ -60,7 +61,7 @@ impl Camera {
         let (offset_x, offset_y, _) = sample_square.get_point();
 
         let sample_pixel_centre = self
-            .pixel100_loc
+            .pixel00_loc
             .addv(self.pixel_delta_u.scale(j as f64 + offset_x))
             .addv(self.pixel_delta_v.scale(i as f64 + offset_y));
 
@@ -73,29 +74,33 @@ impl Camera {
         Vector::new(random_double() - 0.5, random_double() - 0.5, 0.0)
     }
 
-    fn ray_color(&self, ray: Ray, world: &HittableList) -> Color {
-        let world_interval: Interval = Interval::new(0.0, F_INF);
-        let hit_record = world.hit(&ray, &world_interval);
+    fn ray_color(ray: Ray, world: &HittableList, depth: u32) -> Color {
+        if depth == 0 {
+            Color::new(0.0, 0.0, 0.0)
+        } else {
+            let world_interval: Interval = Interval::new(0.001, F_INF);
+            let hit_record = world.hit(&ray, &world_interval);
 
-        let intensity = Interval::new(0.000, 0.999);
+            match hit_record {
+                Some(hit) => {
+                    let surface_normal_vec = hit.get_normal();
 
-        match hit_record {
-            Some(hit) => {
-                let surface_normal_vec = hit.get_normal();
-                let (x, y, z) = surface_normal_vec.get_point();
+                    let bounce_ray_direction: Vector =
+                        Vector::get_random_unit_vector_on_hemisphere(surface_normal_vec);
+                    let bounce_ray: Ray = Ray::new(hit.get_point(), bounce_ray_direction);
 
-                // let r = 256.0 * intensity.clamp(x);
-                // let g = 256.0 * intensity.clamp(y);
-                // let b = 256.0 * intensity.clamp(z);
-                // Color::new(r, g, b)
+                    Camera::ray_color(bounce_ray, world, depth - 1).scale(0.5)
 
-                // NOTE: normalised so all x, y, and z in the range of [-1.0, 1.0]
-                // so, add 1 to move the range to [0.0, 2.0]
-                // and scale by 0.5 to get a range of [0.0, 1.0]
-                // which valid rgb values have to lie within
-                Color::new(x + 1.0, y + 1.0, z + 1.0).scale(0.5)
+                    // let (x, y, z) = surface_normal_vec.get_point();
+
+                    // NOTE: normalised so all x, y, and z in the range of [-1.0, 1.0]
+                    // so, add 1 to move the range to [0.0, 2.0]
+                    // and scale by 0.5 to get a range of [0.0, 1.0]
+                    // which valid rgb values have to lie within
+                    // Color::new(x + 1.0, y + 1.0, z + 1.0).scale(0.5)
+                }
+                None => blue_gradient_vertical(ray),
             }
-            None => blue_gradient_vertical(ray),
         }
     }
 }
@@ -126,6 +131,7 @@ impl Default for Camera {
             viewport_upper_left.addv(pixel_delta_u.addv(pixel_delta_v).scale(0.5));
 
         let samples_per_pixel: u32 = 100;
+        let max_depth: u32 = 50;
 
         Camera {
             aspect_ratio,
@@ -135,10 +141,11 @@ impl Default for Camera {
             viewport_width,
             viewport_height,
             centre,
-            pixel100_loc: pixel00_loc,
+            pixel00_loc,
             pixel_delta_u,
             pixel_delta_v,
             samples_per_pixel,
+            max_depth,
         }
     }
 }
