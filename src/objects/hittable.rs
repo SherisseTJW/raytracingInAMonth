@@ -1,4 +1,5 @@
 use crate::{
+    materials::Materials,
     ray::Ray,
     utils::interval::Interval,
     vector::{Point, Vector, dot_product},
@@ -14,16 +15,24 @@ pub struct HitRecord {
     normal: Vector,
     t: f64,
     front: bool,
+    material: Materials,
 }
 
 impl HitRecord {
-    pub fn new(point: Point, out_normal: Vector, t: f64, ray: &Ray) -> HitRecord {
+    pub fn new(
+        point: Point,
+        out_normal: Vector,
+        t: f64,
+        ray: &Ray,
+        material: Materials,
+    ) -> HitRecord {
         if hit_front(ray, out_normal) {
             HitRecord {
                 point,
                 normal: out_normal,
                 t,
                 front: true,
+                material,
             }
         } else {
             HitRecord {
@@ -31,6 +40,7 @@ impl HitRecord {
                 normal: out_normal.negate(),
                 t,
                 front: false,
+                material,
             }
         }
     }
@@ -45,6 +55,10 @@ impl HitRecord {
 
     pub fn get_normal(&self) -> Vector {
         self.normal
+    }
+
+    pub fn get_material(&self) -> Materials {
+        self.material
     }
 }
 

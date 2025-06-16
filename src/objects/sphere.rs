@@ -1,4 +1,5 @@
 use crate::{
+    materials::Materials,
     ray::Ray,
     utils::interval::Interval,
     vector::{Point, dot_product},
@@ -9,11 +10,16 @@ use super::hittable::{HitRecord, Hittable};
 pub struct Sphere {
     centre: Point,
     radius: f64,
+    material: Materials,
 }
 
 impl Sphere {
-    pub fn new(centre: Point, radius: f64) -> Sphere {
-        Sphere { centre, radius }
+    pub fn new(centre: Point, radius: f64, material: Materials) -> Sphere {
+        Sphere {
+            centre,
+            radius,
+            material,
+        }
     }
 
     pub fn get_centre(&self) -> Point {
@@ -89,6 +95,7 @@ impl Hittable for Sphere {
                     surface_normal_vec,
                     neg_root,
                     ray,
+                    self.material.clone(),
                 ))
             } else if interval.surrounds(pos_root) {
                 let surface_vec = ray.at(pos_root);
@@ -100,6 +107,7 @@ impl Hittable for Sphere {
                     surface_normal_vec,
                     pos_root,
                     ray,
+                    self.material.clone(),
                 ))
             } else {
                 None

@@ -1,6 +1,10 @@
 use image::{Rgb, RgbImage};
 
 use crate::{
+    materials::{
+        Materials,
+        scatterable::{ScatterRecord, Scatterable},
+    },
     objects::hittable::{Hittable, HittableList},
     ray::{Ray, blue_gradient_vertical},
     utils::{constants::F_INF, functions::random_double, interval::Interval},
@@ -83,22 +87,14 @@ impl Camera {
 
             match hit_record {
                 Some(hit) => {
-                    let surface_normal_vec = hit.get_normal();
+                    let material: Materials = hit.get_material();
+                    let scatter_record: Option<ScatterRecord> = material.scatter(ray, hit);
 
-                    let bounce_ray_direction: Vector =
-                        Vector::get_random_unit_vector_on_hemisphere(surface_normal_vec)
-                            .addv(surface_normal_vec);
-                    let bounce_ray: Ray = Ray::new(hit.get_point(), bounce_ray_direction);
-
-                    Camera::ray_color(bounce_ray, world, depth - 1).scale(0.5)
-
-                    // let (x, y, z) = surface_normal_vec.get_point();
-
-                    // NOTE: normalised so all x, y, and z in the range of [-1.0, 1.0]
-                    // so, add 1 to move the range to [0.0, 2.0]
-                    // and scale by 0.5 to get a range of [0.0, 1.0]
-                    // which valid rgb values have to lie within
-                    // Color::new(x + 1.0, y + 1.0, z + 1.0).scale(0.5)
+                    match scatter_record {
+                        Some(scatter) => Camera::ray_color(scatter.get_ray(), world, depth - 1)
+                            .multiply(scatter.get_attenuation()),
+                        None => Color::new(0.0, 0.0, 0.0),
+                    }
                 }
                 None => blue_gradient_vertical(ray),
             }

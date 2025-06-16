@@ -1,6 +1,6 @@
 use core::fmt::{Display, Formatter, Result};
 
-use crate::utils::functions::{random_double, random_double_in_range};
+use crate::utils::functions::random_double_in_range;
 
 pub type Point = Vector;
 pub type Color = Vector;
@@ -17,13 +17,13 @@ impl Vector {
         Vector { x, y, z }
     }
 
-    pub fn get_random_vector(self, min: f64, max: f64) -> Vector {
-        Vector {
-            x: random_double_in_range(min, max),
-            y: random_double_in_range(min, max),
-            z: random_double_in_range(min, max),
-        }
-    }
+    // pub fn get_random_vector(self, min: f64, max: f64) -> Vector {
+    //     Vector {
+    //         x: random_double_in_range(min, max),
+    //         y: random_double_in_range(min, max),
+    //         z: random_double_in_range(min, max),
+    //     }
+    // }
 
     pub fn get_random_unit_vector() -> Vector {
         loop {
@@ -77,6 +77,20 @@ impl Vector {
         }
     }
 
+    pub fn multiply(self, u: Vector) -> Vector {
+        let (x, y, z) = u.get_point();
+
+        let new_x = self.x * x;
+        let new_y = self.y * y;
+        let new_z = self.z * z;
+
+        Vector {
+            x: new_x,
+            y: new_y,
+            z: new_z,
+        }
+    }
+
     pub fn addv(self, vector: Vector) -> Vector {
         let vector_point = vector.get_point();
 
@@ -116,6 +130,12 @@ impl Vector {
     pub fn unit(&self) -> Vector {
         let length = self.get_length();
         self.scale(1.0 / length)
+    }
+
+    pub fn near_zero(&self) -> bool {
+        let epsilon = 1e-8;
+
+        self.x.abs() < epsilon && self.y.abs() < epsilon && self.z.abs() < epsilon
     }
 
     pub fn to_color(self) -> [u8; 3] {
