@@ -95,7 +95,7 @@ impl Hittable for Sphere {
                     surface_normal_vec,
                     neg_root,
                     ray,
-                    self.material.clone(),
+                    self.material,
                 ))
             } else if interval.surrounds(pos_root) {
                 let surface_vec = ray.at(pos_root);
@@ -107,7 +107,7 @@ impl Hittable for Sphere {
                     surface_normal_vec,
                     pos_root,
                     ray,
-                    self.material.clone(),
+                    self.material,
                 ))
             } else {
                 None

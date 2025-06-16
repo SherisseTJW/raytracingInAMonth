@@ -5,19 +5,20 @@ pub mod scatterable;
 use crate::{objects::hittable::HitRecord, ray::Ray};
 
 use lambertian::LambertianMaterial;
+use metal::MetalMaterial;
 use scatterable::{ScatterRecord, Scatterable};
 
 #[derive(Clone, Copy)]
 pub enum Materials {
     Lambertian(LambertianMaterial),
-    Metal,
+    Metal(MetalMaterial),
 }
 
 impl Scatterable for Materials {
     fn scatter(&self, ray: Ray, hit_record: HitRecord) -> Option<ScatterRecord> {
         match self {
             Materials::Lambertian(mat) => mat.scatter(ray, hit_record),
-            Materials::Metal => None,
+            Materials::Metal(mat) => mat.scatter(ray, hit_record),
         }
     }
 }

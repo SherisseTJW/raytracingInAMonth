@@ -25,32 +25,6 @@ impl Vector {
     //     }
     // }
 
-    pub fn get_random_unit_vector() -> Vector {
-        loop {
-            let cur_vector = Vector::new(
-                random_double_in_range(-1.0, 1.0),
-                random_double_in_range(-1.0, 1.0),
-                random_double_in_range(-1.0, 1.0),
-            );
-            // let cur_vector = self.get_random_vector(-1.0, 1.0);
-            let length_squared = cur_vector.get_length_squared();
-
-            if length_squared <= 1.0 && length_squared > 1e-160 {
-                break cur_vector.scale(1.0 / length_squared.sqrt());
-            }
-        }
-    }
-
-    pub fn get_random_unit_vector_on_hemisphere(normal: Vector) -> Vector {
-        let unit_vector = Vector::get_random_unit_vector();
-
-        if dot_product(unit_vector, normal) > 0.0 {
-            unit_vector
-        } else {
-            unit_vector.negate()
-        }
-    }
-
     pub fn get_point(self) -> (f64, f64, f64) {
         (self.x, self.y, self.z)
     }
@@ -127,12 +101,12 @@ impl Vector {
         }
     }
 
-    pub fn unit(&self) -> Vector {
+    pub fn unit(self) -> Vector {
         let length = self.get_length();
         self.scale(1.0 / length)
     }
 
-    pub fn near_zero(&self) -> bool {
+    pub fn near_zero(self) -> bool {
         let epsilon = 1e-8;
 
         self.x.abs() < epsilon && self.y.abs() < epsilon && self.z.abs() < epsilon
@@ -187,4 +161,36 @@ pub fn dot_product(u: Vector, v: Vector) -> f64 {
     let (v1, v2, v3) = v.get_point();
 
     (u1 * v1) + (u2 * v2) + (u3 * v3)
+}
+
+pub fn get_random_unit_vector() -> Vector {
+    loop {
+        let cur_vector = Vector::new(
+            random_double_in_range(-1.0, 1.0),
+            random_double_in_range(-1.0, 1.0),
+            random_double_in_range(-1.0, 1.0),
+        );
+        // let cur_vector = self.get_random_vector(-1.0, 1.0);
+        let length_squared = cur_vector.get_length_squared();
+
+        if length_squared <= 1.0 && length_squared > 1e-160 {
+            break cur_vector.scale(1.0 / length_squared.sqrt());
+        }
+    }
+}
+
+pub fn get_random_unit_vector_on_hemisphere(normal: Vector) -> Vector {
+    let unit_vector = get_random_unit_vector();
+
+    if dot_product(unit_vector, normal) > 0.0 {
+        unit_vector
+    } else {
+        unit_vector.negate()
+    }
+}
+
+pub fn reflect(u: Vector, normal: Vector) -> Vector {
+    let b = dot_product(u, normal);
+
+    u.subv(normal.scale(2.0 * b))
 }
