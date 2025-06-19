@@ -5,7 +5,7 @@ use crate::{
     vector::{Point, Vector, dot_product},
 };
 
-pub trait Hittable {
+pub trait Hittable: Send + Sync {
     fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord>;
 }
 

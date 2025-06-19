@@ -1,4 +1,10 @@
 use image::{Rgb, RgbImage};
+use rayon::ThreadPoolBuilder;
+use rayon::prelude::*;
+use std::sync::{
+    Arc, Mutex,
+    atomic::{AtomicUsize, Ordering},
+};
 
 use crate::{
     materials::{
@@ -31,31 +37,39 @@ pub struct Camera {
 
 impl Camera {
     pub fn render(&self, world: HittableList) {
-        let mut img = RgbImage::new(self.image_width, self.image_height);
+        ThreadPoolBuilder::new()
+            .num_threads(6)
+            .build_global()
+            .unwrap();
 
-        for i in 0..self.image_height {
-            eprintln!(
-                "Scanning line {}.. {} remaining",
-                (i),
-                (self.image_height - i)
-            );
+        let img = std::sync::Mutex::new(RgbImage::new(self.image_width, self.image_height));
+        let lines_done = Arc::new(AtomicUsize::new(0));
 
+        (0..self.image_height).into_par_iter().for_each(|i| {
             for j in 0..self.image_width {
-                let mut pixel_color: Color = Color::new(0.0, 0.0, 0.0);
+                let mut pixel_color = Color::new(0.0, 0.0, 0.0);
 
                 for _ in 0..self.samples_per_pixel {
-                    let ray: Ray = self.get_ray(i, j);
-                    let color: Color = Camera::ray_color(ray, &world, self.max_depth);
+                    let ray = self.get_ray(i, j);
+                    let color = Camera::ray_color(ray, &world, self.max_depth);
                     pixel_color = pixel_color.addv(color);
                 }
 
                 pixel_color = pixel_color.scale(1.0 / self.samples_per_pixel as f64);
-                img.put_pixel(j, i, Rgb(pixel_color.to_color()));
+                let mut img_lock = img.lock().unwrap();
+                img_lock.put_pixel(j, i, Rgb(pixel_color.to_color()));
             }
-        }
 
-        match img.save("image.png") {
-            Ok(_) => println!("Successfully saved"),
+            let done = lines_done.fetch_add(1, Ordering::Relaxed) + 1;
+            eprintln!(
+                "Current Progress: {}/{} lines done",
+                done, self.image_height
+            );
+        });
+
+        // Save the image after all threads finish
+        match img.into_inner().unwrap().save("image.png") {
+            Ok(_) => println!("successfully saved"),
             Err(e) => println!("{}", e),
         };
     }
