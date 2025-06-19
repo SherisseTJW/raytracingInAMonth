@@ -1,7 +1,7 @@
 use crate::{
     objects::hittable::HitRecord,
     ray::Ray,
-    vector::{Color, Vector, refract},
+    vector::{Color, Vector, dot_product, reflect, refract},
 };
 
 use super::scatterable::{ScatterRecord, Scatterable};
@@ -19,7 +19,7 @@ impl DielectricMaterial {
 
 impl Scatterable for DielectricMaterial {
     fn scatter(&self, ray: Ray, hit_record: HitRecord) -> Option<ScatterRecord> {
-        let attenuation: Color = Color::new(1.0, 1.0, 1.0);
+        let normal = hit_record.get_normal();
 
         let ri: f64 = if hit_record.get_front() {
             1.0 / self.refraction_index
@@ -28,10 +28,18 @@ impl Scatterable for DielectricMaterial {
         };
 
         let unit_direction = ray.get_direction().unit();
-        let refracted_ray_direction: Vector = refract(unit_direction, hit_record.get_normal(), ri);
 
-        let scattered_ray = Ray::new(hit_record.get_point(), refracted_ray_direction);
+        let cos_theta = f64::min(dot_product(unit_direction.negate(), normal), 1.0);
+        let sin_theta = (1.0 - (cos_theta * cos_theta)).sqrt();
 
-        Some(ScatterRecord::new(scattered_ray, attenuation))
+        let ray_direction: Vector = if ri * sin_theta > 1.0 {
+            reflect(unit_direction, normal)
+        } else {
+            refract(unit_direction, normal, ri)
+        };
+
+        let scattered_ray = Ray::new(hit_record.get_point(), ray_direction);
+
+        Some(ScatterRecord::new(scattered_ray, Color::new(1.0, 1.0, 1.0)))
     }
 }
