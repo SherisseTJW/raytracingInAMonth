@@ -57,6 +57,10 @@ impl HitRecord {
         self.normal
     }
 
+    pub fn get_front(&self) -> bool {
+        self.front
+    }
+
     pub fn get_material(&self) -> Materials {
         self.material
     }

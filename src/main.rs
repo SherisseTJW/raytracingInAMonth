@@ -6,7 +6,9 @@ mod utils;
 mod vector;
 
 use camera::Camera;
-use materials::{Materials, lambertian::LambertianMaterial, metal::MetalMaterial};
+use materials::{
+    Materials, dielectric::DielectricMaterial, lambertian::LambertianMaterial, metal::MetalMaterial,
+};
 use objects::{hittable::HittableList, sphere::Sphere};
 use vector::{Point, Vector};
 
@@ -15,7 +17,7 @@ fn main() {
         Materials::Lambertian(LambertianMaterial::new(Vector::new(0.8, 0.8, 0.0)));
     let centre_material =
         Materials::Lambertian(LambertianMaterial::new(Vector::new(0.1, 0.2, 0.5)));
-    let left_material = Materials::Metal(MetalMaterial::new(Vector::new(0.8, 0.8, 0.8), 0.3));
+    let left_material = Materials::Dielectric(DielectricMaterial::new(1.5));
     let right_material = Materials::Metal(MetalMaterial::new(Vector::new(0.8, 0.6, 0.2), 1.0));
 
     let ground: Sphere = Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0, ground_material);

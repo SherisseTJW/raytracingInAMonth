@@ -194,3 +194,12 @@ pub fn reflect(u: Vector, normal: Vector) -> Vector {
 
     u.subv(normal.scale(2.0 * b))
 }
+
+pub fn refract(r: Vector, normal: Vector, etai_over_etat: f64) -> Vector {
+    let cos_theta = f64::min(dot_product(r.negate(), normal), 1.0);
+
+    let r_out_perp: Vector = r.addv(normal.scale(cos_theta)).scale(etai_over_etat);
+    let r_out_para: Vector = normal.scale(-f64::abs(1.0 - r_out_perp.get_length_squared()).sqrt());
+
+    r_out_perp.addv(r_out_para)
+}

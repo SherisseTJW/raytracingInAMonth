@@ -1,9 +1,11 @@
+pub mod dielectric;
 pub mod lambertian;
 pub mod metal;
 pub mod scatterable;
 
 use crate::{objects::hittable::HitRecord, ray::Ray};
 
+use dielectric::DielectricMaterial;
 use lambertian::LambertianMaterial;
 use metal::MetalMaterial;
 use scatterable::{ScatterRecord, Scatterable};
@@ -12,6 +14,7 @@ use scatterable::{ScatterRecord, Scatterable};
 pub enum Materials {
     Lambertian(LambertianMaterial),
     Metal(MetalMaterial),
+    Dielectric(DielectricMaterial),
 }
 
 impl Scatterable for Materials {
@@ -19,6 +22,7 @@ impl Scatterable for Materials {
         match self {
             Materials::Lambertian(mat) => mat.scatter(ray, hit_record),
             Materials::Metal(mat) => mat.scatter(ray, hit_record),
+            Materials::Dielectric(mat) => mat.scatter(ray, hit_record),
         }
     }
 }
