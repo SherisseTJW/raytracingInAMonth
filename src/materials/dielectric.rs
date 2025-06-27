@@ -1,6 +1,7 @@
 use crate::{
     objects::hittable::HitRecord,
     ray::Ray,
+    utils::functions::random_double,
     vector::{Color, Vector, dot_product, reflect, refract},
 };
 
@@ -14,6 +15,14 @@ pub struct DielectricMaterial {
 impl DielectricMaterial {
     pub fn new(refraction_index: f64) -> DielectricMaterial {
         DielectricMaterial { refraction_index }
+    }
+
+    // NOTE: Schlick Approximation
+    pub fn reflectance(cosine: f64, refraction_index: f64) -> f64 {
+        let r0 = (1.0 - refraction_index) / (1.0 + refraction_index);
+        let r0_squared = r0 * r0;
+
+        r0_squared + (1.0 - r0_squared) * f64::powf(1.0 - cosine, 5.0)
     }
 }
 
@@ -32,7 +41,10 @@ impl Scatterable for DielectricMaterial {
         let cos_theta = f64::min(dot_product(unit_direction.negate(), normal), 1.0);
         let sin_theta = (1.0 - (cos_theta * cos_theta)).sqrt();
 
-        let ray_direction: Vector = if ri * sin_theta > 1.0 {
+        let cannot_refract = ri * sin_theta > 1.0;
+        let reflect_angle: f64 = DielectricMaterial::reflectance(cos_theta, ri);
+
+        let ray_direction: Vector = if cannot_refract || reflect_angle > random_double() {
             reflect(unit_direction, normal)
         } else {
             refract(unit_direction, normal, ri)
