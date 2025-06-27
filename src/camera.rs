@@ -2,10 +2,12 @@ use image::{Rgb, RgbImage};
 use rayon::ThreadPoolBuilder;
 use rayon::prelude::*;
 use std::sync::{
-    Arc, Mutex,
+    Arc,
     atomic::{AtomicUsize, Ordering},
 };
 
+use crate::utils::functions::degrees_to_radians;
+use crate::vector::cross_product;
 use crate::{
     materials::{
         Materials,
@@ -23,6 +25,13 @@ pub struct Camera {
     image_height: u32,
 
     focal_length: f64,
+    vertical_fov: f64,
+
+    // NOTE: Unit basis vectors for camera coordinate frame
+    u: Vector,
+    v: Vector,
+    w: Vector,
+
     viewport_width: f64,
     viewport_height: f64,
 
@@ -122,13 +131,26 @@ impl Default for Camera {
         let image_width: u32 = 400;
         let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
 
-        let focal_length: f64 = 1.0;
-        let viewport_height: f64 = 2.0;
+        let look_from = Point::new(-2.0, 2.0, 1.0);
+        let look_at = Point::new(0.0, 0.0, -1.0);
+        let v_up = Point::new(0.0, 1.0, 0.0);
+
+        let focal_length: f64 = look_from.subv(look_at).get_length();
+        let vertical_fov = 90.0;
+
+        let w = look_from.subv(look_at).unit();
+        let u = cross_product(v_up, w).unit();
+        let v = cross_product(w, u);
+
+        let theta_rad: f64 = degrees_to_radians(vertical_fov);
+        let height: f64 = f64::tan(theta_rad / 2.0);
+
+        let viewport_height: f64 = 2.0 * height * focal_length;
         let viewport_width: f64 = viewport_height * aspect_ratio;
 
-        let centre = Point::new(0.0, 0.0, 0.0);
-        let viewport_u: Vector = Vector::new(viewport_width, 0.0, 0.0);
-        let viewport_v: Vector = Vector::new(0.0, -viewport_height, 0.0);
+        let centre = look_from;
+        let viewport_u: Vector = u.scale(viewport_width);
+        let viewport_v: Vector = v.negate().scale(viewport_height);
 
         let pixel_delta_u: Vector = viewport_u.scale(1.0 / image_width as f64);
         let pixel_delta_v: Vector = viewport_v.scale(1.0 / image_height as f64);
@@ -148,13 +170,22 @@ impl Default for Camera {
             aspect_ratio,
             image_width,
             image_height,
+
             focal_length,
+            vertical_fov,
+
+            u,
+            v,
+            w,
+
             viewport_width,
             viewport_height,
+
             centre,
             pixel00_loc,
             pixel_delta_u,
             pixel_delta_v,
+
             samples_per_pixel,
             max_depth,
         }

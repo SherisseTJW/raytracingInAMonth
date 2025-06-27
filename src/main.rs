@@ -12,7 +12,11 @@ use materials::{
 use objects::{hittable::HittableList, sphere::Sphere};
 use vector::{Point, Vector};
 
+use crate::utils::constants::PI;
+
 fn main() {
+    // NOTE: Scene 1 - Triple Spheres of different materials + Air Bubble within Glass Sphere
+
     let ground_material =
         Materials::Lambertian(LambertianMaterial::new(Vector::new(0.8, 0.8, 0.0)));
     let centre_material =
@@ -34,6 +38,21 @@ fn main() {
     world.add_hittable(Box::new(right));
     world.add_hittable(Box::new(air_bubble));
 
+    // NOTE: Scene 2 - Testing Camera FOV
+
+    // let r = f64::cos(PI / 4.0);
+    //
+    // let left_material = Materials::Lambertian(LambertianMaterial::new(Vector::new(0.0, 0.0, 1.0)));
+    // let right_material = Materials::Lambertian(LambertianMaterial::new(Vector::new(1.0, 0.0, 0.0)));
+    //
+    // let left: Sphere = Sphere::new(Point::new(-r, 0.0, -1.0), r, left_material);
+    // let right: Sphere = Sphere::new(Point::new(r, 0.0, -1.0), r, right_material);
+    //
+    // let mut world: HittableList = HittableList::new();
+    // world.add_hittable(Box::new(left));
+    // world.add_hittable(Box::new(right));
+
+    // TODO: Expose some settings for camera
     let camera: Camera = Camera::default();
     camera.render(world);
 }
