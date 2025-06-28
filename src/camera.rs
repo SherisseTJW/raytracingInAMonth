@@ -53,12 +53,7 @@ pub struct Camera {
 }
 
 impl Camera {
-    pub fn override_image_specs(
-        &self,
-        aspect_ratio: f64,
-        image_width: u32,
-        image_height: u32,
-    ) -> Camera {
+    pub fn override_image_specs(&self, aspect_ratio: f64, image_width: u32) -> Camera {
         let centre = self.centre;
         let u = self.u;
         let v = self.v;
@@ -70,6 +65,8 @@ impl Camera {
         let focus_dist = self.focus_dist;
         let defocus_disk_u = self.defocus_disk_u;
         let defocus_disk_v = self.defocus_disk_v;
+
+        let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
 
         let theta_rad: f64 = degrees_to_radians(vertical_fov);
         let height: f64 = f64::tan(theta_rad / 2.0);
@@ -126,20 +123,22 @@ impl Camera {
         look_at: Vector,
         v_up: Vector,
         vertical_fov: f64,
+        defocus_angle: f64,
+        focus_dist: f64,
     ) -> Camera {
         let aspect_ratio = self.aspect_ratio;
         let image_width = self.image_width;
         let image_height = self.image_height;
         let samples_per_pixel = self.samples_per_pixel;
         let max_depth = self.max_depth;
-        let defocus_angle = self.defocus_angle;
-        let focus_dist = self.focus_dist;
-        let defocus_disk_u = self.defocus_disk_u;
-        let defocus_disk_v = self.defocus_disk_v;
 
         let w = look_from.subv(look_at).unit();
         let u = cross_product(v_up, w).unit();
         let v = cross_product(w, u);
+
+        let defocus_radius: f64 = focus_dist * f64::tan(degrees_to_radians(defocus_angle / 2.0));
+        let defocus_disk_u: Vector = u.scale(defocus_radius);
+        let defocus_disk_v: Vector = v.scale(defocus_radius);
 
         let theta_rad: f64 = degrees_to_radians(vertical_fov);
         let height: f64 = f64::tan(theta_rad / 2.0);
@@ -337,15 +336,15 @@ impl Camera {
 impl Default for Camera {
     fn default() -> Self {
         let aspect_ratio = 16.0 / 9.0;
-        let image_width: u32 = 400;
+        let image_width: u32 = 1200;
         let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
 
         // NOTE: Default camera will be straight on
-        let look_from = Point::new(0.0, 0.0, 1.0);
-        let look_at = Point::new(0.0, 0.0, -1.0);
+        let look_from = Point::new(13.0, 2.0, 3.0);
+        let look_at = Point::new(0.0, 0.0, 0.0);
         let v_up = Point::new(0.0, 1.0, 0.0);
 
-        let vertical_fov = 40.0;
+        let vertical_fov = 20.0;
 
         let w = look_from.subv(look_at).unit();
         let u = cross_product(v_up, w).unit();
@@ -354,8 +353,8 @@ impl Default for Camera {
         let theta_rad: f64 = degrees_to_radians(vertical_fov);
         let height: f64 = f64::tan(theta_rad / 2.0);
 
-        let defocus_angle = 0.0;
-        let focus_dist = 2.0;
+        let defocus_angle = 0.6;
+        let focus_dist = 10.0;
 
         let defocus_radius: f64 = focus_dist * f64::tan(degrees_to_radians(defocus_angle / 2.0));
         let defocus_disk_u: Vector = u.scale(defocus_radius);
@@ -379,7 +378,7 @@ impl Default for Camera {
         let pixel00_loc: Point =
             viewport_upper_left.addv(pixel_delta_u.addv(pixel_delta_v).scale(0.5));
 
-        let samples_per_pixel: u32 = 100;
+        let samples_per_pixel: u32 = 500;
         let max_depth: u32 = 50;
 
         Camera {
