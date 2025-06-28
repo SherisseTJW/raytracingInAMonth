@@ -45,6 +45,172 @@ pub struct Camera {
 }
 
 impl Camera {
+    pub fn override_image_specs(
+        &self,
+        aspect_ratio: f64,
+        image_width: u32,
+        image_height: u32,
+    ) -> Camera {
+        let centre = self.centre;
+        let u = self.u;
+        let v = self.v;
+        let w = self.w;
+        let focal_length = self.focal_length;
+        let vertical_fov = self.vertical_fov;
+        let samples_per_pixel = self.samples_per_pixel;
+        let max_depth = self.max_depth;
+
+        let theta_rad: f64 = degrees_to_radians(vertical_fov);
+        let height: f64 = f64::tan(theta_rad / 2.0);
+
+        let viewport_height: f64 = 2.0 * height * focal_length;
+        let viewport_width: f64 = viewport_height * aspect_ratio;
+
+        let viewport_u: Vector = u.scale(viewport_width);
+        let viewport_v: Vector = v.negate().scale(viewport_height);
+
+        let pixel_delta_u: Vector = viewport_u.scale(1.0 / image_width as f64);
+        let pixel_delta_v: Vector = viewport_v.scale(1.0 / image_height as f64);
+
+        let viewport_upper_left = centre
+            .subv(viewport_u.scale(0.5))
+            .subv(viewport_v.scale(0.5))
+            .subv(Vector::new(0.0, 0.0, focal_length));
+
+        let pixel00_loc: Point =
+            viewport_upper_left.addv(pixel_delta_u.addv(pixel_delta_v).scale(0.5));
+
+        Camera {
+            aspect_ratio,
+            image_width,
+            image_height,
+
+            focal_length,
+            vertical_fov,
+
+            u,
+            v,
+            w,
+
+            viewport_width,
+            viewport_height,
+
+            centre,
+            pixel00_loc,
+            pixel_delta_u,
+            pixel_delta_v,
+
+            samples_per_pixel,
+            max_depth,
+        }
+    }
+
+    pub fn override_camera_pos(
+        &self,
+        look_from: Vector,
+        look_at: Vector,
+        v_up: Vector,
+        vertical_fov: f64,
+    ) -> Camera {
+        let aspect_ratio = self.aspect_ratio;
+        let image_width = self.image_width;
+        let image_height = self.image_height;
+        let samples_per_pixel = self.samples_per_pixel;
+        let max_depth = self.max_depth;
+
+        let w = look_from.subv(look_at).unit();
+        let u = cross_product(v_up, w).unit();
+        let v = cross_product(w, u);
+
+        let focal_length: f64 = look_from.subv(look_at).get_length();
+
+        let theta_rad: f64 = degrees_to_radians(vertical_fov);
+        let height: f64 = f64::tan(theta_rad / 2.0);
+
+        let viewport_height: f64 = 2.0 * height * focal_length;
+        let viewport_width: f64 = viewport_height * aspect_ratio;
+
+        let centre = look_from;
+        let viewport_u: Vector = u.scale(viewport_width);
+        let viewport_v: Vector = v.negate().scale(viewport_height);
+
+        let pixel_delta_u: Vector = viewport_u.scale(1.0 / image_width as f64);
+        let pixel_delta_v: Vector = viewport_v.scale(1.0 / image_height as f64);
+
+        let viewport_upper_left = centre
+            .subv(viewport_u.scale(0.5))
+            .subv(viewport_v.scale(0.5))
+            .subv(Vector::new(0.0, 0.0, focal_length));
+
+        let pixel00_loc: Point =
+            viewport_upper_left.addv(pixel_delta_u.addv(pixel_delta_v).scale(0.5));
+
+        Camera {
+            aspect_ratio,
+            image_width,
+            image_height,
+
+            focal_length,
+            vertical_fov,
+
+            u,
+            v,
+            w,
+
+            viewport_width,
+            viewport_height,
+
+            centre,
+            pixel00_loc,
+            pixel_delta_u,
+            pixel_delta_v,
+
+            samples_per_pixel,
+            max_depth,
+        }
+    }
+
+    pub fn override_sampling_specs(&self, samples_per_pixel: u32, max_depth: u32) -> Camera {
+        let aspect_ratio = self.aspect_ratio;
+        let image_width = self.image_width;
+        let image_height = self.image_height;
+        let focal_length = self.focal_length;
+        let vertical_fov = self.vertical_fov;
+        let u = self.u;
+        let v = self.v;
+        let w = self.w;
+        let viewport_width = self.viewport_width;
+        let viewport_height = self.viewport_height;
+        let centre = self.centre;
+        let pixel00_loc = self.pixel00_loc;
+        let pixel_delta_u = self.pixel_delta_u;
+        let pixel_delta_v = self.pixel_delta_v;
+
+        Camera {
+            aspect_ratio,
+            image_width,
+            image_height,
+
+            focal_length,
+            vertical_fov,
+
+            u,
+            v,
+            w,
+
+            viewport_width,
+            viewport_height,
+
+            centre,
+            pixel00_loc,
+            pixel_delta_u,
+            pixel_delta_v,
+
+            samples_per_pixel,
+            max_depth,
+        }
+    }
+
     pub fn render(&self, world: HittableList) {
         ThreadPoolBuilder::new()
             .num_threads(6)
@@ -131,7 +297,8 @@ impl Default for Camera {
         let image_width: u32 = 400;
         let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
 
-        let look_from = Point::new(-2.0, 2.0, 1.0);
+        // NOTE: Default camera will be straight on
+        let look_from = Point::new(0.0, 0.0, 1.0);
         let look_at = Point::new(0.0, 0.0, -1.0);
         let v_up = Point::new(0.0, 1.0, 0.0);
 

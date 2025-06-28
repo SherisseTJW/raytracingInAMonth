@@ -52,7 +52,6 @@ fn main() {
     // world.add_hittable(Box::new(left));
     // world.add_hittable(Box::new(right));
 
-    // TODO: Expose some settings for camera
     let camera: Camera = Camera::default();
     camera.render(world);
 }
