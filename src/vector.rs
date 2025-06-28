@@ -189,6 +189,20 @@ pub fn get_random_unit_vector_on_hemisphere(normal: Vector) -> Vector {
     }
 }
 
+pub fn get_random_vector_in_unit_disk() -> Vector {
+    loop {
+        let point = Point::new(
+            random_double_in_range(-1.0, 1.0),
+            random_double_in_range(-1.0, 1.0),
+            0.0,
+        );
+
+        if point.get_length_squared() < 1.0 {
+            break point;
+        }
+    }
+}
+
 pub fn reflect(u: Vector, normal: Vector) -> Vector {
     let b = dot_product(u, normal);
 
