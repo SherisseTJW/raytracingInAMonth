@@ -4,11 +4,23 @@ use crate::vector::{Color, Point, Vector};
 pub struct Ray {
     origin: Point,
     direction: Vector,
+    time: f64,
 }
 
 impl Ray {
-    pub fn new(origin: Point, direction: Vector) -> Ray {
-        Ray { origin, direction }
+    pub fn new(origin: Point, direction: Vector, time: Option<f64>) -> Ray {
+        match time {
+            Some(val) => Ray {
+                origin,
+                direction,
+                time: val,
+            },
+            None => Ray {
+                origin,
+                direction,
+                time: 0.0,
+            },
+        }
     }
 
     pub fn get_origin(&self) -> Point {
@@ -17,6 +29,10 @@ impl Ray {
 
     pub fn get_direction(&self) -> Vector {
         self.direction
+    }
+
+    pub fn get_time(&self) -> f64 {
+        self.time
     }
 
     pub fn at(&self, t: f64) -> Point {

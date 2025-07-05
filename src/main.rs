@@ -32,15 +32,21 @@ fn main() {
     let right_material = Materials::Metal(MetalMaterial::new(Vector::new(0.8, 0.6, 0.2), 1.0));
     let air_bubble_material = Materials::Dielectric(DielectricMaterial::new(1.0 / 1.50));
 
+    let moving: Sphere = Sphere::new_moving_sphere(
+        Point::new(0.0, 0.0, 0.0),
+        Point::new(0.0, random_double_in_range(0.0, 0.5), 0.0),
+        0.2,
+        centre_material,
+    );
+
     let ground: Sphere = Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0, ground_material);
-    let centre: Sphere = Sphere::new(Point::new(0.0, 0.0, -1.2), 0.5, centre_material);
     let left: Sphere = Sphere::new(Point::new(-1.0, 0.0, -1.0), 0.5, left_material);
     let right: Sphere = Sphere::new(Point::new(1.0, 0.0, -1.0), 0.5, right_material);
     let air_bubble: Sphere = Sphere::new(Point::new(-1.0, 0.0, -1.0), 0.4, air_bubble_material);
 
     let mut world: HittableList = HittableList::new();
     world.add_hittable(Box::new(ground));
-    world.add_hittable(Box::new(centre));
+    world.add_hittable(Box::new(moving));
     world.add_hittable(Box::new(left));
     world.add_hittable(Box::new(right));
     world.add_hittable(Box::new(air_bubble));

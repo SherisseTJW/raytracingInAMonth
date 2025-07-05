@@ -50,7 +50,7 @@ impl Scatterable for DielectricMaterial {
             refract(unit_direction, normal, ri)
         };
 
-        let scattered_ray = Ray::new(hit_record.get_point(), ray_direction);
+        let scattered_ray = Ray::new(hit_record.get_point(), ray_direction, Some(ray.get_time()));
 
         Some(ScatterRecord::new(scattered_ray, Color::new(1.0, 1.0, 1.0)))
     }

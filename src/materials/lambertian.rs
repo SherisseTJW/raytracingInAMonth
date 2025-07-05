@@ -24,9 +24,17 @@ impl Scatterable for LambertianMaterial {
             get_random_unit_vector_on_hemisphere(surface_normal_vec).addv(surface_normal_vec);
 
         let scatter_ray = if scatter_ray_direction.near_zero() {
-            Ray::new(hit_record.get_point(), surface_normal_vec)
+            Ray::new(
+                hit_record.get_point(),
+                surface_normal_vec,
+                Some(ray.get_time()),
+            )
         } else {
-            Ray::new(hit_record.get_point(), scatter_ray_direction)
+            Ray::new(
+                hit_record.get_point(),
+                scatter_ray_direction,
+                Some(ray.get_time()),
+            )
         };
 
         Some(ScatterRecord::new(scatter_ray, self.albedo))
