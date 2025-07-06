@@ -1,12 +1,10 @@
 use crate::{
-    materials::Materials,
-    ray::Ray,
-    utils::interval::Interval,
-    vector::{Point, Vector, dot_product},
+    materials::Materials, objects::aabb::{merge_aabb, Aabb}, ray::Ray, utils::interval::Interval, vector::{dot_product, Point, Vector}
 };
 
 pub trait Hittable: Send + Sync {
     fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord>;
+    fn get_aabb(&self) -> Aabb;
 }
 
 #[derive(Clone, Copy)]
@@ -69,16 +67,21 @@ impl HitRecord {
 pub struct HittableList {
     // NOTE: https://stackoverflow.com/a/74974361
     hittable_list: Vec<Box<dyn Hittable>>,
+    bounding_box: Aabb
 }
 
 impl HittableList {
     pub fn new() -> HittableList {
         HittableList {
             hittable_list: vec![],
+            bounding_box: Aabb::empty_aabb()
         }
     }
 
     pub fn add_hittable(&mut self, hittable: Box<dyn Hittable>) {
+        let new_bounding_box = merge_aabb(self.bounding_box, hittable.get_aabb());
+        self.bounding_box = new_bounding_box;
+
         self.hittable_list.push(hittable);
     }
 }
@@ -105,6 +108,10 @@ impl Hittable for HittableList {
         }
 
         nearest_hit_record
+    }
+
+    fn get_aabb(&self) -> Aabb {
+        self.bounding_box
     }
 }
 

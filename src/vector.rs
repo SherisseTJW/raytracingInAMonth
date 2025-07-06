@@ -29,6 +29,18 @@ impl Vector {
         (self.x, self.y, self.z)
     }
 
+    pub fn get_point_by_axis(self, axis: i8) -> f64 {
+        if axis == 0 {
+            self.x
+        }
+        else if axis == 1 {
+            self.y
+        }
+        else {
+            self.z
+        }
+    }
+
     pub fn get_length_squared(self) -> f64 {
         (self.x * self.x) + (self.y * self.y) + (self.z * self.z)
     }
