@@ -79,7 +79,7 @@ impl HittableList {
     }
 
     pub fn add_hittable(&mut self, hittable: Box<dyn Hittable>) {
-        let new_bounding_box = merge_aabb(self.bounding_box, hittable.get_aabb());
+        let new_bounding_box = merge_aabb(&self.bounding_box, &hittable.get_aabb());
         self.bounding_box = new_bounding_box;
 
         self.hittable_list.push(hittable);

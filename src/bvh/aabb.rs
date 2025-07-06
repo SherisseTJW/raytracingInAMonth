@@ -105,7 +105,7 @@ impl Default for Aabb {
     }
 }
 
-pub fn merge_aabb(a: Aabb, b: Aabb) -> Aabb {
+pub fn merge_aabb(a: &Aabb, b: &Aabb) -> Aabb {
     let ax = a.get_axis_interval(0);
     let ay = a.get_axis_interval(1);
     let az = a.get_axis_interval(2);
