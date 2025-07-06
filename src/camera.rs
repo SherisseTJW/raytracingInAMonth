@@ -1,12 +1,12 @@
 use image::{Rgb, RgbImage};
 use rayon::ThreadPoolBuilder;
-use rayon::current_thread_index;
 use rayon::prelude::*;
 use std::sync::{
     Arc,
     atomic::{AtomicUsize, Ordering},
 };
 
+use crate::bvh::bvh::BvhNode;
 use crate::ray;
 use crate::utils::functions::degrees_to_radians;
 use crate::vector::cross_product;
@@ -238,7 +238,7 @@ impl Camera {
         }
     }
 
-    pub fn render(&self, world: HittableList) {
+    pub fn render(&self, world: BvhNode) {
         ThreadPoolBuilder::new()
             .num_threads(6)
             .build_global()
@@ -310,7 +310,7 @@ impl Camera {
         Vector::new(random_double() - 0.5, random_double() - 0.5, 0.0)
     }
 
-    fn ray_color(ray: Ray, world: &HittableList, depth: u32) -> Color {
+    fn ray_color(ray: Ray, world: &BvhNode, depth: u32) -> Color {
         if depth == 0 {
             Color::new(0.0, 0.0, 0.0)
         } else {

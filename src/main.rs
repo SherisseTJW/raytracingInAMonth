@@ -15,11 +15,10 @@ use rand::random;
 use vector::{Point, Vector};
 
 use crate::{
-    utils::{
+    bvh::bvh::BvhNode, utils::{
         constants::PI,
         functions::{random_double, random_double_in_range},
-    },
-    vector::{Color, get_random_unit_vector},
+    }, vector::{get_random_unit_vector, Color}
 };
 
 fn main() {
@@ -45,12 +44,17 @@ fn main() {
     let right: Sphere = Sphere::new(Point::new(1.0, 0.0, -1.0), 0.5, right_material);
     let air_bubble: Sphere = Sphere::new(Point::new(-1.0, 0.0, -1.0), 0.4, air_bubble_material);
 
-    let mut world: HittableList = HittableList::new();
-    world.add_hittable(Box::new(ground));
-    world.add_hittable(Box::new(moving));
-    world.add_hittable(Box::new(left));
-    world.add_hittable(Box::new(right));
-    world.add_hittable(Box::new(air_bubble));
+    let mut hittable_list: HittableList = HittableList::new();
+    hittable_list.add_hittable(Box::new(ground));
+    hittable_list.add_hittable(Box::new(moving));
+    hittable_list.add_hittable(Box::new(left));
+    hittable_list.add_hittable(Box::new(right));
+    hittable_list.add_hittable(Box::new(air_bubble));
+
+    let size = hittable_list.get_num_hittables();
+    let mut hittables = hittable_list.get_hittables();
+
+    let world: BvhNode = BvhNode::new(&mut hittables, 0 as usize, size);
 
     let camera = Camera::default();
     camera.render(world);
