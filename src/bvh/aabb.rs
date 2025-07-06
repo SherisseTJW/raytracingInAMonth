@@ -43,7 +43,7 @@ impl Aabb {
         Aabb { x, y, z }
     }
 
-    pub fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<Interval> {
+    pub fn hit(&self, ray: &Ray, ray_t: &Interval) -> Option<Interval> {
         let ray_origin = ray.get_origin();
         let ray_direction = ray.get_direction();
 
@@ -86,7 +86,7 @@ impl Aabb {
         Some(Interval::new(ray_t_min, ray_t_max))
     }
 
-    fn get_axis_interval(&self, axis: i8) -> Interval {
+    pub fn get_axis_interval(&self, axis: i8) -> Interval {
         if axis == 0 {
             self.x
         }

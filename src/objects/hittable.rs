@@ -1,5 +1,5 @@
 use crate::{
-    materials::Materials, objects::aabb::{merge_aabb, Aabb}, ray::Ray, utils::interval::Interval, vector::{dot_product, Point, Vector}
+    materials::Materials, bvh::aabb::{merge_aabb, Aabb}, ray::Ray, utils::interval::Interval, vector::{dot_product, Point, Vector}
 };
 
 pub trait Hittable: Send + Sync {
