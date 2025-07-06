@@ -4,6 +4,7 @@ mod objects;
 mod ray;
 mod utils;
 mod vector;
+mod bvh;
 
 use camera::Camera;
 use materials::{

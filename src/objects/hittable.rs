@@ -84,6 +84,14 @@ impl HittableList {
 
         self.hittable_list.push(hittable);
     }
+
+    pub fn get_num_hittables(&self) -> usize {
+        self.hittable_list.len()
+    }
+
+    pub fn get_hittables(self) -> Vec<Box<dyn Hittable>> {
+        self.hittable_list
+    }
 }
 
 impl Hittable for HittableList {

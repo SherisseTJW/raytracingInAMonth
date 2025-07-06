@@ -43,7 +43,7 @@ impl Aabb {
         Aabb { x, y, z }
     }
 
-    pub fn hit(&self, ray: Ray, ray_t: Interval) -> Option<Interval> {
+    pub fn hit(&self, ray: &Ray, ray_t: Interval) -> Option<Interval> {
         let ray_origin = ray.get_origin();
         let ray_direction = ray.get_direction();
 
