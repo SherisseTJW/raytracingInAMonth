@@ -4,6 +4,7 @@ use crate::{
 
 use super::hittable::{HitRecord, Hittable};
 
+#[derive(Clone)]
 pub struct Sphere {
     centre: Ray,
     radius: f64,
@@ -105,5 +106,9 @@ impl Hittable for Sphere {
 
     fn get_aabb(&self) -> Aabb {
         self.bounding_box
+    }
+
+    fn clone_box(&self) -> Box<dyn Hittable> {
+        Box::new(self.clone())
     }
 }

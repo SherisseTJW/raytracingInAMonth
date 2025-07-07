@@ -54,7 +54,8 @@ fn main() {
     let size = hittable_list.get_num_hittables();
     let mut hittables = hittable_list.get_hittables();
 
-    let world: BvhNode = BvhNode::new(&mut hittables, 0 as usize, size);
+    let mut world: HittableList = HittableList::new();
+    world.add_hittable(Box::new(BvhNode::new(&mut hittables, 0 as usize, size)));
 
     let camera = Camera::default();
     camera.render(world);

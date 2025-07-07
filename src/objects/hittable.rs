@@ -1,10 +1,17 @@
 use crate::{
-    materials::Materials, bvh::aabb::{merge_aabb, Aabb}, ray::Ray, utils::interval::Interval, vector::{dot_product, Point, Vector}
+    bvh::aabb::{merge_aabb, Aabb}, materials::Materials, ray::Ray, utils::interval::{Interval, EMPTY_INTERVAL}, vector::{dot_product, Point, Vector}
 };
 
 pub trait Hittable: Send + Sync {
     fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord>;
     fn get_aabb(&self) -> Aabb;
+    fn clone_box(&self) -> Box<dyn Hittable>;
+}
+
+impl Clone for Box<dyn Hittable> {
+    fn clone(&self) -> Box<dyn Hittable> {
+        self.clone_box()
+    }
 }
 
 #[derive(Clone, Copy)]
@@ -64,6 +71,7 @@ impl HitRecord {
     }
 }
 
+#[derive(Clone)]
 pub struct HittableList {
     // NOTE: https://stackoverflow.com/a/74974361
     hittable_list: Vec<Box<dyn Hittable>>,
@@ -120,6 +128,10 @@ impl Hittable for HittableList {
 
     fn get_aabb(&self) -> Aabb {
         self.bounding_box
+    }
+
+    fn clone_box(&self) -> Box<dyn Hittable> {
+        Box::new(self.clone())
     }
 }
 

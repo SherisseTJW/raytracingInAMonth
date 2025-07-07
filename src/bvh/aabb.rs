@@ -61,7 +61,7 @@ impl Aabb {
 
             let (r_min, r_max) = ray_t.get_min_max();
 
-            if r_min < r_max {
+            if r_max < r_min {
                 return None
             }
 

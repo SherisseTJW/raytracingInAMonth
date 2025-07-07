@@ -5,14 +5,15 @@ use rand::{rng, Rng};
 use crate::{bvh::aabb::{merge_aabb, Aabb}, objects::hittable::{HitRecord, Hittable, HittableList}, ray::Ray, utils::interval::Interval};
 
 pub struct BvhNode {
-    left_child: Option<Box<BvhNode>>,
-    right_child: Option<Box<BvhNode>>,
-    bounding_box: Aabb
+    left_child: Option<Box<dyn Hittable>>,
+    right_child: Option<Box<dyn Hittable>>,
+    bounding_box: Aabb,
+    hittable: Option<Box<dyn Hittable>>
 }
 
 impl BvhNode {
     pub fn new_from_hittable(hittable: &Box<dyn Hittable>) -> BvhNode {
-        BvhNode { left_child: None, right_child: None, bounding_box: hittable.get_aabb() }
+        BvhNode { left_child: None, right_child: None, bounding_box: hittable.get_aabb(), hittable: Some(hittable.clone_box()) }
     }
 
     pub fn new(hittable_list: &mut Vec<Box<dyn Hittable>>, start: usize, end: usize) -> BvhNode {
@@ -21,10 +22,13 @@ impl BvhNode {
 
         let object_span = end - start;
         if object_span == 1 {
+            let hittable = hittable_list[start].clone_box();
+
             BvhNode {
                 left_child: None,
                 right_child: None,
-                bounding_box: hittable_list[start].get_aabb(),
+                bounding_box: hittable.get_aabb(),
+                hittable: Some(hittable)
             }
         }
         else if object_span == 2 {
@@ -35,11 +39,12 @@ impl BvhNode {
             BvhNode {
                 left_child: Some(Box::new(left_child)),
                 right_child: Some(Box::new(right_child)),
-                bounding_box
+                bounding_box,
+                hittable: None
             }
         }
         else {
-            // NOTE: Unlikely to integer overflow.. I don't think we have that many hittables
+            // NOTE: Unlikely to overflow.. I don't think we have that many hittables
             let mid = (start + end) / 2;
 
             let hittable_comparator = |a: &Box<dyn Hittable>, b: &Box<dyn Hittable>| -> Ordering {
@@ -66,7 +71,8 @@ impl BvhNode {
             BvhNode {
                 left_child: Some(Box::new(left_child)),
                 right_child: Some(Box::new(right_child)),
-                bounding_box
+                bounding_box,
+                hittable: None
             }
         }
     }
@@ -81,7 +87,14 @@ impl Hittable for BvhNode {
 
         // NOTE: Hit something in this bb, must be either left or right or both
         match (&self.left_child, &self.right_child) {
-            (None, None) => None, 
+            (None, None) => {
+                if let Some(hittable) = &self.hittable {
+                    hittable.hit(ray, interval)
+                } 
+                else {
+                    None
+                }
+            }, 
             (Some(left), None) => {
                 left.hit(ray, interval)
             }
@@ -117,4 +130,20 @@ impl Hittable for BvhNode {
     fn get_aabb(&self) -> Aabb {
         self.bounding_box
     }
+
+    fn clone_box(&self) -> Box<dyn Hittable> {
+        Box::new(self.clone())
+    }
 }
+
+impl Clone for BvhNode {
+    fn clone(&self) -> Self {
+        BvhNode {
+            left_child: self.left_child.as_ref().map(|l| l.clone_box()),
+            right_child: self.right_child.as_ref().map(|r| r.clone_box()),
+            bounding_box: self.bounding_box,
+            hittable: self.hittable.clone(),
+        }
+    }
+}
+
