@@ -36,8 +36,8 @@ impl Sphere {
         let centre = Ray::new(start_centre, start_centre.subv(end_centre), None);
 
         let radius_vector = Vector::new(radius, radius, radius);
-        let start_aabb = Aabb::new_from_extrema_points(centre.at(0.0).subv(radius_vector), centre.at(0.0).subv(radius_vector));
-        let end_aabb = Aabb::new_from_extrema_points(centre.at(1.0).subv(radius_vector), centre.at(1.0).subv(radius_vector));
+        let start_aabb = Aabb::new_from_extrema_points(centre.at(0.0).subv(radius_vector), centre.at(0.0).addv(radius_vector));
+        let end_aabb = Aabb::new_from_extrema_points(centre.at(1.0).subv(radius_vector), centre.at(1.0).addv(radius_vector));
         let bounding_box =  merge_aabb(&start_aabb, &end_aabb);
 
         Sphere {

@@ -87,20 +87,6 @@ impl Hittable for BvhNode {
 
         // NOTE: Hit something in this bb, must be either left or right or both
         match (&self.left_child, &self.right_child) {
-            (None, None) => {
-                if let Some(hittable) = &self.hittable {
-                    hittable.hit(ray, interval)
-                } 
-                else {
-                    None
-                }
-            }, 
-            (Some(left), None) => {
-                left.hit(ray, interval)
-            }
-            (None, Some(right)) => {
-                right.hit(ray, interval)
-            }
             (Some(left), Some(right)) => {
                 let left_hit: Option<HitRecord> = left.hit(ray, interval);
 
@@ -123,7 +109,15 @@ impl Hittable for BvhNode {
                         right.hit(ray, interval)
                     }
                 }
-            }
+            },
+            _ => {
+                if let Some(hittable) = &self.hittable {
+                    hittable.hit(ray, interval)
+                } 
+                else {
+                    None
+                }
+            },
         }
     }
 
