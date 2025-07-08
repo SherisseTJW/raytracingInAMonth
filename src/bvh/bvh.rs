@@ -2,7 +2,7 @@ use std::cmp::Ordering;
 
 use rand::{rng, Rng};
 
-use crate::{bvh::aabb::{merge_aabb, Aabb}, objects::hittable::{HitRecord, Hittable, HittableList}, ray::Ray, utils::interval::Interval};
+use crate::{bvh::aabb::{merge_aabb, Aabb}, objects::hittable::{HitRecord, Hittable, HittableList}, ray::Ray, utils::interval::{Interval, EMPTY_INTERVAL}};
 
 pub struct BvhNode {
     left_child: Option<Box<dyn Hittable>>,
@@ -20,8 +20,31 @@ impl BvhNode {
         let mut rng = rng();
         let axis = rng.random_range(0..3);
 
+        let hittable_comparator = |a: &Box<dyn Hittable>, b: &Box<dyn Hittable>| -> Ordering {
+            let (a_min, _) = a.get_aabb().get_axis_interval(axis).get_min_max();
+            let (b_min, _) = b.get_aabb().get_axis_interval(axis).get_min_max();
+
+            if a_min < b_min {
+                Ordering::Less
+            }
+            else if a_min > b_min {
+                Ordering::Greater
+            }
+            else {
+                Ordering::Equal
+            }
+        };
+
         let object_span = end - start;
-        if object_span == 1 {
+        if object_span == 0 {
+            BvhNode {
+                left_child: None,
+                right_child: None,
+                bounding_box: Aabb::new_from_interval(EMPTY_INTERVAL, EMPTY_INTERVAL, EMPTY_INTERVAL),
+                hittable: None
+            }
+        }
+        else if object_span == 1 {
             let hittable = hittable_list[start].clone_box();
 
             BvhNode {
@@ -46,21 +69,6 @@ impl BvhNode {
         else {
             // NOTE: Unlikely to overflow.. I don't think we have that many hittables
             let mid = (start + end) / 2;
-
-            let hittable_comparator = |a: &Box<dyn Hittable>, b: &Box<dyn Hittable>| -> Ordering {
-                let (a_min, _) = a.get_aabb().get_axis_interval(axis).get_min_max();
-                let (b_min, _) = b.get_aabb().get_axis_interval(axis).get_min_max();
-
-                if a_min < b_min {
-                    Ordering::Less
-                }
-                else if a_min > b_min {
-                    Ordering::Greater
-                }
-                else {
-                    Ordering::Equal
-                }
-            };
 
             hittable_list[start..end].sort_by(hittable_comparator);
 
