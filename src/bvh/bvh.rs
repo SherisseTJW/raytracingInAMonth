@@ -1,17 +1,27 @@
 use std::cmp::Ordering;
 
-use crate::{bvh::aabb::{merge_aabb, Aabb}, objects::hittable::{self, HitRecord, Hittable, HittableList}, ray::Ray, utils::interval::{Interval, EMPTY_INTERVAL}};
+use crate::{
+    bvh::aabb::{Aabb, merge_aabb},
+    objects::hittable::{self, HitRecord, Hittable, HittableList},
+    ray::Ray,
+    utils::interval::{EMPTY_INTERVAL, Interval},
+};
 
 pub struct BvhNode {
     left_child: Option<Box<dyn Hittable>>,
     right_child: Option<Box<dyn Hittable>>,
     bounding_box: Aabb,
-    hittable: Option<Box<dyn Hittable>>
+    hittable: Option<Box<dyn Hittable>>,
 }
 
 impl BvhNode {
     pub fn new_from_hittable(hittable: &Box<dyn Hittable>) -> BvhNode {
-        BvhNode { left_child: None, right_child: None, bounding_box: hittable.get_aabb(), hittable: Some(hittable.clone_box()) }
+        BvhNode {
+            left_child: None,
+            right_child: None,
+            bounding_box: hittable.get_aabb(),
+            hittable: Some(hittable.clone_box()),
+        }
     }
 
     pub fn new(hittable_list: &mut Vec<Box<dyn Hittable>>, start: usize, end: usize) -> BvhNode {
@@ -21,20 +31,18 @@ impl BvhNode {
                 left_child: None,
                 right_child: None,
                 bounding_box: Aabb::default(),
-                hittable: None
+                hittable: None,
             }
-        }
-        else if object_span == 1 {
+        } else if object_span == 1 {
             let hittable = hittable_list[start].clone_box();
 
             BvhNode {
                 left_child: None,
                 right_child: None,
                 bounding_box: hittable.get_aabb(),
-                hittable: Some(hittable)
+                hittable: Some(hittable),
             }
-        }
-        else if object_span == 2 {
+        } else if object_span == 2 {
             let left_child = BvhNode::new_from_hittable(&hittable_list[start]);
             let right_child = BvhNode::new_from_hittable(&hittable_list[start + 1]);
             let bounding_box = merge_aabb(&left_child.get_aabb(), &right_child.get_aabb());
@@ -43,10 +51,9 @@ impl BvhNode {
                 left_child: Some(Box::new(left_child)),
                 right_child: Some(Box::new(right_child)),
                 bounding_box,
-                hittable: None
+                hittable: None,
             }
-        }
-        else {
+        } else {
             // NOTE: Not going to overflow.. I'm not going to create that many
             let mid = (start + end) / 2;
             let mut bounding_box = Aabb::default();
@@ -62,11 +69,9 @@ impl BvhNode {
 
                 if a_min < b_min {
                     Ordering::Less
-                }
-                else if a_min > b_min {
+                } else if a_min > b_min {
                     Ordering::Greater
-                }
-                else {
+                } else {
                     Ordering::Equal
                 }
             };
@@ -80,7 +85,7 @@ impl BvhNode {
                 left_child: Some(Box::new(left_child)),
                 right_child: Some(Box::new(right_child)),
                 bounding_box,
-                hittable: None
+                hittable: None,
             }
         }
     }
@@ -90,7 +95,7 @@ impl Hittable for BvhNode {
     fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord> {
         let bb_hit_interval: Option<Interval> = self.bounding_box.hit(ray, interval);
         if let None = bb_hit_interval {
-            return None
+            return None;
         }
 
         // NOTE: Hit something in this bb, must be either left or right or both
@@ -98,32 +103,29 @@ impl Hittable for BvhNode {
             (Some(left), Some(right)) => {
                 let left_hit: Option<HitRecord> = left.hit(ray, interval);
 
-                match left_hit {
+                match &left_hit {
                     Some(left_hitrecord) => {
                         let (min, _) = interval.get_min_max();
-                        let valid_t_interval = Interval::new(min, left_hitrecord.get_t()); 
+                        let valid_t_interval = Interval::new(min, left_hitrecord.get_t());
 
                         let right_hit: Option<HitRecord> = right.hit(ray, &valid_t_interval);
 
                         match right_hit {
                             Some(_) => right_hit,
-                            None => left_hit
+                            None => left_hit,
                         }
-                    },
-                    // NOTE: If didn't hit left, must have hit right
-                    None => {
-                        right.hit(ray, interval)
                     }
+                    // NOTE: If didn't hit left, must have hit right
+                    None => right.hit(ray, interval),
                 }
-            },
+            }
             _ => {
                 if let Some(hittable) = &self.hittable {
                     hittable.hit(ray, interval)
-                } 
-                else {
+                } else {
                     None
                 }
-            },
+            }
         }
     }
 
@@ -146,4 +148,3 @@ impl Clone for BvhNode {
         }
     }
 }
-

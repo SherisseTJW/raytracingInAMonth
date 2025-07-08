@@ -1,19 +1,20 @@
 use crate::{
     objects::hittable::HitRecord,
     ray::Ray,
+    texture::{solid_color::SolidColor, texture::Texture},
     vector::{Color, Vector, get_random_unit_vector_on_hemisphere},
 };
 
 use super::scatterable::{ScatterRecord, Scatterable};
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct LambertianMaterial {
-    albedo: Color,
+    texture: Box<dyn Texture>,
 }
 
 impl LambertianMaterial {
-    pub fn new(albedo: Color) -> LambertianMaterial {
-        LambertianMaterial { albedo }
+    pub fn new(texture: Box<dyn Texture>) -> LambertianMaterial {
+        LambertianMaterial { texture }
     }
 }
 
@@ -37,6 +38,10 @@ impl Scatterable for LambertianMaterial {
             )
         };
 
-        Some(ScatterRecord::new(scatter_ray, self.albedo))
+        let (u, v) = hit_record.get_texture_coordinates();
+        Some(ScatterRecord::new(
+            scatter_ray,
+            self.texture.get_value(u, v, hit_record.get_point()),
+        ))
     }
 }

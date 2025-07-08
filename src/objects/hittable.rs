@@ -1,5 +1,9 @@
 use crate::{
-    bvh::aabb::{merge_aabb, Aabb}, materials::Materials, ray::Ray, utils::interval::{Interval, EMPTY_INTERVAL}, vector::{dot_product, Point, Vector}
+    bvh::aabb::{Aabb, merge_aabb},
+    materials::Materials,
+    ray::Ray,
+    utils::interval::{EMPTY_INTERVAL, Interval},
+    vector::{Point, Vector, dot_product},
 };
 
 pub trait Hittable: Send + Sync {
@@ -14,13 +18,15 @@ impl Clone for Box<dyn Hittable> {
     }
 }
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct HitRecord {
     point: Point,
     normal: Vector,
     t: f64,
     front: bool,
     material: Materials,
+    u: f64,
+    v: f64,
 }
 
 impl HitRecord {
@@ -30,6 +36,8 @@ impl HitRecord {
         t: f64,
         ray: &Ray,
         material: Materials,
+        u: f64,
+        v: f64,
     ) -> HitRecord {
         if hit_front(ray, out_normal) {
             HitRecord {
@@ -38,6 +46,8 @@ impl HitRecord {
                 t,
                 front: true,
                 material,
+                u,
+                v,
             }
         } else {
             HitRecord {
@@ -46,6 +56,8 @@ impl HitRecord {
                 t,
                 front: false,
                 material,
+                u,
+                v,
             }
         }
     }
@@ -67,7 +79,11 @@ impl HitRecord {
     }
 
     pub fn get_material(&self) -> Materials {
-        self.material
+        self.material.clone()
+    }
+
+    pub fn get_texture_coordinates(&self) -> (f64, f64) {
+        (self.u, self.v)
     }
 }
 
@@ -75,14 +91,14 @@ impl HitRecord {
 pub struct HittableList {
     // NOTE: https://stackoverflow.com/a/74974361
     hittable_list: Vec<Box<dyn Hittable>>,
-    bounding_box: Aabb
+    bounding_box: Aabb,
 }
 
 impl HittableList {
     pub fn new() -> HittableList {
         HittableList {
             hittable_list: vec![],
-            bounding_box: Aabb::default()
+            bounding_box: Aabb::default(),
         }
     }
 
@@ -110,7 +126,7 @@ impl Hittable for HittableList {
 
         for hittable in &self.hittable_list {
             if let Some(cur_record) = hittable.hit(ray, interval) {
-                match nearest_hit_record {
+                match &nearest_hit_record {
                     Some(nearest_record) => {
                         let nearest_t = nearest_record.get_t();
 

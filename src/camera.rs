@@ -7,8 +7,6 @@ use std::sync::{
 };
 
 use crate::bvh::bvh::BvhNode;
-use crate::objects::hittable::HitRecord;
-use crate::ray;
 use crate::utils::functions::degrees_to_radians;
 use crate::vector::cross_product;
 use crate::vector::get_random_vector_in_unit_disk;
@@ -17,7 +15,7 @@ use crate::{
         Materials,
         scatterable::{ScatterRecord, Scatterable},
     },
-    objects::hittable::{Hittable, HittableList},
+    objects::hittable::Hittable,
     ray::{Ray, blue_gradient_vertical},
     utils::{constants::F_INF, functions::random_double, interval::Interval},
     vector::{Color, Point, Vector},
@@ -28,7 +26,6 @@ pub struct Camera {
     image_width: u32,
     image_height: u32,
 
-    // focal_length: f64,
     vertical_fov: f64,
 
     // NOTE: Unit basis vectors for camera coordinate frame

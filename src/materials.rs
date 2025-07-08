@@ -10,7 +10,7 @@ use lambertian::LambertianMaterial;
 use metal::MetalMaterial;
 use scatterable::{ScatterRecord, Scatterable};
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub enum Materials {
     Lambertian(LambertianMaterial),
     Metal(MetalMaterial),

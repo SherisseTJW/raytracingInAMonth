@@ -1,5 +1,9 @@
 use crate::{
-    materials::Materials, bvh::aabb::{merge_aabb, Aabb}, ray::Ray, utils::interval::Interval, vector::{dot_product, Point, Vector}
+    bvh::aabb::{Aabb, merge_aabb},
+    materials::Materials,
+    ray::Ray,
+    utils::interval::Interval,
+    vector::{Point, Vector, dot_product},
 };
 
 use super::hittable::{HitRecord, Hittable};
@@ -9,7 +13,7 @@ pub struct Sphere {
     centre: Ray,
     radius: f64,
     material: Materials,
-    bounding_box: Aabb
+    bounding_box: Aabb,
 }
 
 impl Sphere {
@@ -17,13 +21,16 @@ impl Sphere {
         let centre = Ray::new(static_centre, Vector::new(0.0, 0.0, 0.0), None);
 
         let radius_vector = Vector::new(radius, radius, radius);
-        let bounding_box = Aabb::new_from_extrema_points(static_centre.subv(radius_vector), static_centre.addv(radius_vector));
+        let bounding_box = Aabb::new_from_extrema_points(
+            static_centre.subv(radius_vector),
+            static_centre.addv(radius_vector),
+        );
 
         Sphere {
             centre,
             radius,
             material,
-            bounding_box
+            bounding_box,
         }
     }
 
@@ -36,15 +43,21 @@ impl Sphere {
         let centre = Ray::new(start_centre, start_centre.subv(end_centre), None);
 
         let radius_vector = Vector::new(radius, radius, radius);
-        let start_aabb = Aabb::new_from_extrema_points(centre.at(0.0).subv(radius_vector), centre.at(0.0).addv(radius_vector));
-        let end_aabb = Aabb::new_from_extrema_points(centre.at(1.0).subv(radius_vector), centre.at(1.0).addv(radius_vector));
-        let bounding_box =  merge_aabb(&start_aabb, &end_aabb);
+        let start_aabb = Aabb::new_from_extrema_points(
+            centre.at(0.0).subv(radius_vector),
+            centre.at(0.0).addv(radius_vector),
+        );
+        let end_aabb = Aabb::new_from_extrema_points(
+            centre.at(1.0).subv(radius_vector),
+            centre.at(1.0).addv(radius_vector),
+        );
+        let bounding_box = merge_aabb(&start_aabb, &end_aabb);
 
         Sphere {
             centre,
             radius,
             material,
-            bounding_box
+            bounding_box,
         }
     }
 
@@ -80,23 +93,29 @@ impl Hittable for Sphere {
                 let surface_vec = ray.at(neg_root);
                 let surface_normal_vec = surface_vec.subv(current_centre).unit();
 
+                // NOTE: Need to actually give the u, v point
                 Some(HitRecord::new(
                     surface_vec,
                     surface_normal_vec,
                     neg_root,
                     ray,
-                    self.material,
+                    self.material.clone(),
+                    0.0,
+                    0.0,
                 ))
             } else if interval.surrounds(pos_root) {
                 let surface_vec = ray.at(pos_root);
                 let surface_normal_vec = surface_vec.subv(current_centre).unit();
 
+                // NOTE: Need to actually give the u, v point
                 Some(HitRecord::new(
                     surface_vec,
                     surface_normal_vec,
                     pos_root,
                     ray,
-                    self.material,
+                    self.material.clone(),
+                    0.0,
+                    0.0,
                 ))
             } else {
                 None
