@@ -4,23 +4,23 @@ use crate::{
 };
 
 #[derive(Clone)]
-pub struct SolidColor {
+pub struct SolidColorTexture {
     albedo: Color,
 }
 
-impl SolidColor {
-    pub fn new_from_rgb(r: f64, g: f64, b: f64) -> SolidColor {
-        SolidColor {
+impl SolidColorTexture {
+    pub fn new_from_rgb(r: f64, g: f64, b: f64) -> SolidColorTexture {
+        SolidColorTexture {
             albedo: Color::new(r, g, b),
         }
     }
 
-    pub fn new_from_color(color: Color) -> SolidColor {
-        SolidColor { albedo: color }
+    pub fn new_from_color(color: Color) -> SolidColorTexture {
+        SolidColorTexture { albedo: color }
     }
 }
 
-impl Texture for SolidColor {
+impl Texture for SolidColorTexture {
     fn get_value(&self, u: f64, v: f64, point: Point) -> Color {
         self.albedo
     }

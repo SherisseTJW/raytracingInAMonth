@@ -17,7 +17,7 @@ use vector::{Point, Vector};
 
 use crate::{
     bvh::bvh::BvhNode,
-    texture::{solid_color::SolidColor, texture::Texture},
+    texture::{checker::CheckerTexture, solid_color::SolidColorTexture, texture::Texture},
     utils::{
         constants::PI,
         functions::{random_double, random_double_in_range},
@@ -83,7 +83,11 @@ fn main() {
     let mut world: HittableList = HittableList::new();
 
     let ground_material = Materials::Lambertian(LambertianMaterial::new(Box::new(
-        SolidColor::new_from_rgb(0.5, 0.5, 0.5),
+        CheckerTexture::new_from_solid_color(
+            Color::new(0.2, 0.3, 0.1),
+            Color::new(0.9, 0.9, 0.9),
+            0.32,
+        ),
     )));
     let ground = Sphere::new(Point::new(0.0, -1000.0, 0.0), 1000.0, ground_material);
     world.add_hittable(Box::new(ground));
@@ -100,7 +104,7 @@ fn main() {
             if centre.subv(Point::new(4.0, 0.2, 0.0)).get_length() > 0.9 {
                 if rdm_mat < 0.6 {
                     let albedo = get_random_unit_vector().multiply(get_random_unit_vector());
-                    let texture = Box::new(SolidColor::new_from_color(albedo));
+                    let texture = Box::new(SolidColorTexture::new_from_color(albedo));
 
                     let mat = Materials::Lambertian(LambertianMaterial::new(texture));
                     let sphere = Sphere::new(centre, 0.2, mat);
@@ -125,9 +129,9 @@ fn main() {
     let sphere1 = Sphere::new(Point::new(0.0, 1.0, 0.0), 1.0, mat1);
     world.add_hittable(Box::new(sphere1));
 
-    let mat2 = Materials::Lambertian(LambertianMaterial::new(Box::new(SolidColor::new_from_rgb(
-        0.4, 0.2, 0.1,
-    ))));
+    let mat2 = Materials::Lambertian(LambertianMaterial::new(Box::new(
+        SolidColorTexture::new_from_rgb(0.4, 0.2, 0.1),
+    )));
     let sphere2 = Sphere::new(Point::new(-4.0, 1.0, 0.0), 1.0, mat2);
     world.add_hittable(Box::new(sphere2));
 

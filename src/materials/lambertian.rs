@@ -1,7 +1,7 @@
 use crate::{
     objects::hittable::HitRecord,
     ray::Ray,
-    texture::{solid_color::SolidColor, texture::Texture},
+    texture::{solid_color::SolidColorTexture, texture::Texture},
     vector::{Color, Vector, get_random_unit_vector_on_hemisphere},
 };
 
