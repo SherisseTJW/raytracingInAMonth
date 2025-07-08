@@ -54,11 +54,8 @@ fn main() {
     // let size = hittable_list.get_num_hittables();
     // let mut hittables = hittable_list.get_hittables();
     //
-    // let mut world: HittableList = HittableList::new();
-    // world.add_hittable(Box::new(BvhNode::new(&mut hittables, 0 as usize, size)));
-    //
     // let camera = Camera::default();
-    // camera.render(world);
+    // camera.render(BvhNode::new(&mut hittables, 0 as usize, size));
 
     // NOTE: Scene 2 - Testing Camera FOV
 
@@ -132,9 +129,6 @@ fn main() {
     let size = world.get_num_hittables();
     let mut hittables = world.get_hittables();
 
-    let mut bvh_world: HittableList = HittableList::new();
-    bvh_world.add_hittable(Box::new(BvhNode::new(&mut hittables, 0 as usize, size)));
-
     let mut camera: Camera = Camera::default();
     camera = camera.override_sampling_specs(100, 50);
     camera = camera.override_camera_pos(
@@ -146,5 +140,5 @@ fn main() {
         10.0,
     );
     camera = camera.override_image_specs(16.0 / 9.0, 800);
-    camera.render(bvh_world);
+    camera.render(BvhNode::new(&mut hittables, 0 as usize, size));
 }

@@ -17,14 +17,6 @@ impl Vector {
         Vector { x, y, z }
     }
 
-    // pub fn get_random_vector(self, min: f64, max: f64) -> Vector {
-    //     Vector {
-    //         x: random_double_in_range(min, max),
-    //         y: random_double_in_range(min, max),
-    //         z: random_double_in_range(min, max),
-    //     }
-    // }
-
     pub fn get_point(self) -> (f64, f64, f64) {
         (self.x, self.y, self.z)
     }

@@ -11,8 +11,12 @@ impl Interval {
         Interval { min, max }
     }
 
-    pub fn get_min_max(self) -> (f64, f64) {
+    pub fn get_min_max(&self) -> (f64, f64) {
         (self.min, self.max)
+    }
+
+    pub fn get_size(&self) -> f64 {
+        self.max - self.min
     }
 
     pub fn contains(&self, val: f64) -> bool {

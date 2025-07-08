@@ -1,8 +1,6 @@
 use std::cmp::Ordering;
 
-use rand::{rng, Rng};
-
-use crate::{bvh::aabb::{merge_aabb, Aabb}, objects::hittable::{HitRecord, Hittable, HittableList}, ray::Ray, utils::interval::{Interval, EMPTY_INTERVAL}};
+use crate::{bvh::aabb::{merge_aabb, Aabb}, objects::hittable::{self, HitRecord, Hittable, HittableList}, ray::Ray, utils::interval::{Interval, EMPTY_INTERVAL}};
 
 pub struct BvhNode {
     left_child: Option<Box<dyn Hittable>>,
@@ -17,30 +15,12 @@ impl BvhNode {
     }
 
     pub fn new(hittable_list: &mut Vec<Box<dyn Hittable>>, start: usize, end: usize) -> BvhNode {
-        let mut rng = rng();
-        let axis = rng.random_range(0..3);
-
-        let hittable_comparator = |a: &Box<dyn Hittable>, b: &Box<dyn Hittable>| -> Ordering {
-            let (a_min, _) = a.get_aabb().get_axis_interval(axis).get_min_max();
-            let (b_min, _) = b.get_aabb().get_axis_interval(axis).get_min_max();
-
-            if a_min < b_min {
-                Ordering::Less
-            }
-            else if a_min > b_min {
-                Ordering::Greater
-            }
-            else {
-                Ordering::Equal
-            }
-        };
-
         let object_span = end - start;
         if object_span == 0 {
             BvhNode {
                 left_child: None,
                 right_child: None,
-                bounding_box: Aabb::new_from_interval(EMPTY_INTERVAL, EMPTY_INTERVAL, EMPTY_INTERVAL),
+                bounding_box: Aabb::default(),
                 hittable: None
             }
         }
@@ -67,14 +47,34 @@ impl BvhNode {
             }
         }
         else {
-            // NOTE: Unlikely to overflow.. I don't think we have that many hittables
+            // NOTE: Not going to overflow.. I'm not going to create that many
             let mid = (start + end) / 2;
+            let mut bounding_box = Aabb::default();
+
+            for i in start..end {
+                bounding_box = merge_aabb(&bounding_box, &hittable_list[i].get_aabb());
+            }
+            let axis = bounding_box.get_longest_axis();
+
+            let hittable_comparator = |a: &Box<dyn Hittable>, b: &Box<dyn Hittable>| -> Ordering {
+                let (a_min, _) = a.get_aabb().get_axis_interval(axis).get_min_max();
+                let (b_min, _) = b.get_aabb().get_axis_interval(axis).get_min_max();
+
+                if a_min < b_min {
+                    Ordering::Less
+                }
+                else if a_min > b_min {
+                    Ordering::Greater
+                }
+                else {
+                    Ordering::Equal
+                }
+            };
 
             hittable_list[start..end].sort_by(hittable_comparator);
 
             let left_child = BvhNode::new(hittable_list, start, mid);
             let right_child = BvhNode::new(hittable_list, mid, end);
-            let bounding_box = merge_aabb(&left_child.get_aabb(), &right_child.get_aabb());
 
             BvhNode {
                 left_child: Some(Box::new(left_child)),
@@ -106,9 +106,7 @@ impl Hittable for BvhNode {
                         let right_hit: Option<HitRecord> = right.hit(ray, &valid_t_interval);
 
                         match right_hit {
-                            // NOTE: Sub-Primitive in both left AND right
                             Some(_) => right_hit,
-                            // NOTE: Sub-Primitive only in left
                             None => left_hit
                         }
                     },

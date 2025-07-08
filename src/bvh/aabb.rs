@@ -10,10 +10,6 @@ pub struct Aabb {
 }
 
 impl Aabb {
-    pub fn empty_aabb() -> Aabb {
-        Aabb { x: EMPTY_INTERVAL, y: EMPTY_INTERVAL, z: EMPTY_INTERVAL }
-    }
-
     pub fn new_from_interval(x: Interval, y: Interval, z: Interval) -> Aabb {
         Aabb { x, y, z }
     }
@@ -47,8 +43,10 @@ impl Aabb {
         let ray_origin = ray.get_origin();
         let ray_direction = ray.get_direction();
 
-        let mut ray_t_min = 0.0;
-        let mut ray_t_max = 0.0;
+        let (r_min, r_max) = ray_t.get_min_max();
+
+        let mut ray_t_min = r_min;
+        let mut ray_t_max = r_max;
 
         for axis in 0..3 {
             let cur_axis_interval = self.get_axis_interval(axis);
@@ -59,27 +57,18 @@ impl Aabb {
             let t0 = (min - ray_origin.get_point_by_axis(axis)) * inv_ray_direction;
             let t1 = (max - ray_origin.get_point_by_axis(axis)) * inv_ray_direction;
 
-            let (r_min, r_max) = ray_t.get_min_max();
-
-            if r_max < r_min {
-                return None
-            }
 
             if t0 < t1 {
-                if t0 > r_min {
-                    ray_t_min = t0;
-                }
-                if t1 < r_max {
-                    ray_t_max= t1;
-                }
+                ray_t_min = ray_t_min.max(t0);
+                ray_t_max = ray_t_max.min(t1);
             }
             else {
-                if t1 > r_min {
-                    ray_t_min = t1;
-                }
-                if t0 < r_max {
-                    ray_t_max = t0;
-                }
+                ray_t_min = ray_t_min.max(t1);
+                ray_t_max = ray_t_max.min(t0);
+            }
+
+            if ray_t_max <= ray_t_min {
+                return None
             }
         }
 
@@ -95,6 +84,22 @@ impl Aabb {
         }
         else {
             self.z
+        }
+    }
+
+    pub fn get_longest_axis(&self) -> i8 {
+        let x_size = self.x.get_size();
+        let y_size = self.y.get_size();
+        let z_size = self.z.get_size();
+
+        if x_size > y_size && x_size > z_size {
+            0
+        }
+        else if y_size > x_size && y_size > z_size {
+            1
+        }
+        else {
+            2
         }
     }
 }
@@ -114,9 +119,9 @@ pub fn merge_aabb(a: &Aabb, b: &Aabb) -> Aabb {
     let by = b.get_axis_interval(1);
     let bz = b.get_axis_interval(2);
 
-    let x = merge_interval(ax, bx);
-    let y = merge_interval(ay, by);
-    let z = merge_interval(az, bz);
-
-    Aabb { x, y, z }
+    Aabb { 
+        x: merge_interval(ax, bx), 
+        y: merge_interval(ay, by), 
+        z: merge_interval(az, bz) 
+    }
 }

@@ -82,7 +82,7 @@ impl HittableList {
     pub fn new() -> HittableList {
         HittableList {
             hittable_list: vec![],
-            bounding_box: Aabb::empty_aabb()
+            bounding_box: Aabb::default()
         }
     }
 
