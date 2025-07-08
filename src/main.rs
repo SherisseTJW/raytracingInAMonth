@@ -1,10 +1,10 @@
+mod bvh;
 mod camera;
 mod materials;
 mod objects;
 mod ray;
 mod utils;
 mod vector;
-mod bvh;
 
 use camera::Camera;
 use materials::{
@@ -15,10 +15,12 @@ use rand::random;
 use vector::{Point, Vector};
 
 use crate::{
-    bvh::bvh::BvhNode, utils::{
+    bvh::bvh::BvhNode,
+    utils::{
         constants::PI,
         functions::{random_double, random_double_in_range},
-    }, vector::{get_random_unit_vector, Color}
+    },
+    vector::{Color, get_random_unit_vector},
 };
 
 fn main() {
@@ -82,8 +84,8 @@ fn main() {
     let ground = Sphere::new(Point::new(0.0, -1000.0, 0.0), 1000.0, ground_material);
     world.add_hittable(Box::new(ground));
 
-    for a in -5..5 {
-        for b in -5..5 {
+    for a in -8..8 {
+        for b in -8..8 {
             let rdm_mat = random_double();
             let centre = Point::new(
                 a as f64 + 0.9 * random_double(),
@@ -130,7 +132,7 @@ fn main() {
     let mut hittables = world.get_hittables();
 
     let mut camera: Camera = Camera::default();
-    camera = camera.override_sampling_specs(100, 50);
+    camera = camera.override_sampling_specs(250, 50);
     camera = camera.override_camera_pos(
         Point::new(13.0, 2.0, 3.0),
         Point::new(0.0, 0.0, 0.0),
