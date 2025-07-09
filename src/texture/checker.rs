@@ -7,7 +7,7 @@ use crate::{
 pub struct CheckerTexture {
     even_texture: Box<dyn Texture>,
     odd_texture: Box<dyn Texture>,
-    scale: f64,
+    inv_scale: f64,
 }
 
 impl CheckerTexture {
@@ -19,7 +19,7 @@ impl CheckerTexture {
         CheckerTexture {
             even_texture,
             odd_texture,
-            scale,
+            inv_scale: 1.0 / scale,
         }
     }
 
@@ -30,14 +30,25 @@ impl CheckerTexture {
         CheckerTexture {
             even_texture,
             odd_texture,
-            scale,
+            inv_scale: 1.0 / scale,
         }
     }
 }
 
 impl Texture for CheckerTexture {
     fn get_value(&self, u: f64, v: f64, point: Point) -> Color {
-        Color::new(0.0, 0.0, 0.0)
+        let (x, y, z) = point.get_point();
+
+        let x_val = (self.inv_scale * x).floor() as i64;
+        let y_val = (self.inv_scale * y).floor() as i64;
+        let z_val = (self.inv_scale * z).floor() as i64;
+
+        if (x_val + y_val + z_val) % 2 == 0 {
+            self.odd_texture.get_value(u, v, point)
+        }
+        else {
+            self.even_texture.get_value(u, v, point)
+        }
     }
 
     fn clone_box(&self) -> Box<dyn Texture> {
