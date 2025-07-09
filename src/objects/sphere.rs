@@ -1,9 +1,9 @@
 use crate::{
-    bvh::aabb::{Aabb, merge_aabb},
+    bvh::aabb::{merge_aabb, Aabb},
     materials::Materials,
     ray::Ray,
-    utils::interval::Interval,
-    vector::{Point, Vector, dot_product},
+    utils::{constants::PI, interval::Interval},
+    vector::{dot_product, Point, Vector},
 };
 
 use super::hittable::{HitRecord, Hittable};
@@ -92,6 +92,7 @@ impl Hittable for Sphere {
             if interval.surrounds(neg_root) {
                 let surface_vec = ray.at(neg_root);
                 let surface_normal_vec = surface_vec.subv(current_centre).unit();
+                let (u, v) = get_sphere_coordinates(surface_normal_vec);
 
                 // NOTE: Need to actually give the u, v point
                 Some(HitRecord::new(
@@ -100,12 +101,13 @@ impl Hittable for Sphere {
                     neg_root,
                     ray,
                     self.material.clone(),
-                    0.0,
-                    0.0,
+                    u,
+                    v,
                 ))
             } else if interval.surrounds(pos_root) {
                 let surface_vec = ray.at(pos_root);
                 let surface_normal_vec = surface_vec.subv(current_centre).unit();
+                let (u, v) = get_sphere_coordinates(surface_normal_vec);
 
                 // NOTE: Need to actually give the u, v point
                 Some(HitRecord::new(
@@ -114,8 +116,8 @@ impl Hittable for Sphere {
                     pos_root,
                     ray,
                     self.material.clone(),
-                    0.0,
-                    0.0,
+                    u,
+                    v,
                 ))
             } else {
                 None
@@ -130,4 +132,16 @@ impl Hittable for Sphere {
     fn clone_box(&self) -> Box<dyn Hittable> {
         Box::new(self.clone())
     }
+}
+
+pub fn get_sphere_coordinates(point: Point) -> (f64, f64) {
+    let (x, y, z) = point.get_point();
+
+    let phi = x.atan2(-z) + PI;
+    let theta = (-y).acos();
+
+    let u = phi / (2.0 * PI);
+    let v = theta / PI;
+
+    (u, v)
 }
