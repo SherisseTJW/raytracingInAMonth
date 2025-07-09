@@ -1,10 +1,11 @@
 use image::{ImageReader, RgbImage, GenericImageView};
+use std::sync::Arc;
 
 use crate::{texture::texture::Texture, utils::interval::Interval, vector::{Color, Point}};
 
 #[derive(Clone)]
 pub struct ImageTexture {
-    image: RgbImage,
+    image: Arc<RgbImage>,
     normalised_interval: Interval,
 }
 
@@ -26,7 +27,10 @@ impl ImageTexture {
             Err(err) => panic!("Could not open image at {} for image texture\n{}", image_filepath, err)
         };
 
-        ImageTexture { image, normalised_interval: Interval::new(0.0, 1.0) }
+        ImageTexture { 
+            image: Arc::new(image), 
+            normalised_interval: Interval::new(0.0, 1.0) 
+        }
     }
 }
 
