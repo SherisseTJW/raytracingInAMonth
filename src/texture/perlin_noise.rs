@@ -12,6 +12,7 @@ use crate::{
 };
 
 pub struct PerlinNoiseTexture {
+    scale: f64,
     random_float: Vec<f64>,
     x_perm: Vec<u64>,
     y_perm: Vec<u64>,
@@ -19,18 +20,21 @@ pub struct PerlinNoiseTexture {
 }
 
 impl PerlinNoiseTexture {
-    pub fn new(point_count: i64) -> PerlinNoiseTexture {
+    const POINT_COUNT: i64 = 256;
+
+    pub fn new(scale: f64) -> PerlinNoiseTexture {
         let mut random_float = vec![];
 
-        for i in 0..point_count {
+        for i in 0..Self::POINT_COUNT {
             random_float.push(random_double());
         }
 
-        let x_perm = Self::generate_perm(point_count);
-        let y_perm = Self::generate_perm(point_count);
-        let z_perm = Self::generate_perm(point_count);
+        let x_perm = Self::generate_perm();
+        let y_perm = Self::generate_perm();
+        let z_perm = Self::generate_perm();
 
         PerlinNoiseTexture {
+            scale,
             random_float,
             x_perm,
             y_perm,
@@ -89,10 +93,10 @@ impl PerlinNoiseTexture {
         acc
     }
 
-    fn generate_perm(point_count: i64) -> Vec<u64> {
+    fn generate_perm() -> Vec<u64> {
         let mut perm = vec![];
 
-        for i in 0..point_count {
+        for i in 0..Self::POINT_COUNT {
             perm.push(i as u64);
         }
 
@@ -104,7 +108,7 @@ impl PerlinNoiseTexture {
 
 impl Texture for PerlinNoiseTexture {
     fn get_value(&self, u: f64, v: f64, point: Point) -> Color {
-        let noise = self.gen_noise(point);
+        let noise = self.gen_noise(point.scale(self.scale));
         Color::new(1.0, 1.0, 1.0).scale(noise)
     }
 }
