@@ -17,10 +17,10 @@ use crate::{
 
 pub fn perlin_scene() -> Scene {
     let ground_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
-        PerlinNoiseTexture::new(4.0),
+        PerlinNoiseTexture::new(12.0),
     )));
     let centre_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
-        PerlinNoiseTexture::new(4.0),
+        PerlinNoiseTexture::new(12.0),
     )));
 
     let ground: Sphere = Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0, ground_material);
