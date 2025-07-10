@@ -35,7 +35,9 @@ pub fn final_render_1_scene() -> Scene {
 
             if centre.subv(Point::new(4.0, 0.2, 0.0)).get_length() > 0.9 {
                 if rdm_mat < 0.6 {
-                    let albedo = get_random_unit_vector().multiply(get_random_unit_vector());
+                    let albedo = get_random_unit_vector()
+                        .multiply(get_random_unit_vector())
+                        .scale(0.8); // Lighten the colors a bit
                     let texture = Arc::new(SolidColorTexture::new_from_color(albedo));
 
                     let mat = Materials::Lambertian(LambertianMaterial::new(texture));
@@ -72,7 +74,7 @@ pub fn final_render_1_scene() -> Scene {
     hittable_list.add_hittable(Arc::new(sphere3));
 
     let mut camera: Camera = Camera::default();
-    camera = camera.override_sampling_specs(250, 50);
+    camera = camera.override_sampling_specs(400, 50);
     camera = camera.override_camera_pos(
         Point::new(13.0, 2.0, 3.0),
         Point::new(0.0, 0.0, 0.0),
