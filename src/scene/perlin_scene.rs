@@ -10,17 +10,20 @@ use crate::{
     },
     objects::{hittable::HittableList, sphere::Sphere},
     scene::scene::Scene,
-    texture::{perlin_noise::PerlinNoiseTexture, solid_color::SolidColorTexture},
+    texture::{
+        perlin_noise::{PerlinNoiseEffect, PerlinNoiseTexture},
+        solid_color::SolidColorTexture,
+    },
     utils::functions::random_double_in_range,
     vector::{Point, Vector},
 };
 
 pub fn perlin_scene() -> Scene {
     let ground_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
-        PerlinNoiseTexture::new(12.0),
+        PerlinNoiseTexture::new(12.0, 7, PerlinNoiseEffect::Marble),
     )));
     let centre_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
-        PerlinNoiseTexture::new(12.0),
+        PerlinNoiseTexture::new(12.0, 7, PerlinNoiseEffect::WhiteNoise),
     )));
 
     let ground: Sphere = Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0, ground_material);

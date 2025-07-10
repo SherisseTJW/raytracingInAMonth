@@ -11,7 +11,14 @@ use crate::{
     vector::{Color, Point, Vector, dot_product, get_random_unit_vector},
 };
 
+pub enum PerlinNoiseEffect {
+    WhiteNoise,
+    Marble,
+}
+
 pub struct PerlinNoiseTexture {
+    effect: PerlinNoiseEffect,
+    depth: i32,
     scale: f64,
     random_vector: Vec<Vector>,
     x_perm: Vec<u64>,
@@ -22,7 +29,7 @@ pub struct PerlinNoiseTexture {
 impl PerlinNoiseTexture {
     const POINT_COUNT: i64 = 256;
 
-    pub fn new(scale: f64) -> PerlinNoiseTexture {
+    pub fn new(scale: f64, depth: i32, effect: PerlinNoiseEffect) -> PerlinNoiseTexture {
         let mut random_vector = vec![];
 
         for i in 0..Self::POINT_COUNT {
@@ -34,6 +41,8 @@ impl PerlinNoiseTexture {
         let z_perm = Self::generate_perm();
 
         PerlinNoiseTexture {
+            effect,
+            depth,
             scale,
             random_vector,
             x_perm,
@@ -42,12 +51,12 @@ impl PerlinNoiseTexture {
         }
     }
 
-    fn gen_turbulence(&self, point: Point, depth: i32) -> f64 {
+    fn gen_turbulence(&self, point: Point) -> f64 {
         let mut acc = 0.0;
         let mut tmp_point = point;
         let mut weight = 1.0;
 
-        for i in 0..depth {
+        for i in 0..self.depth {
             acc += weight * self.gen_noise(&tmp_point);
             weight *= 0.5;
             tmp_point = tmp_point.scale(2.0);
@@ -120,14 +129,14 @@ impl PerlinNoiseTexture {
         perm
     }
 
-    fn simulate_white_noise(&self, point: Point, depth: i32) -> Color {
-        let noise = self.gen_turbulence(point.scale(self.scale), depth);
+    fn simulate_white_noise(&self, point: Point) -> Color {
+        let noise = self.gen_turbulence(point.scale(self.scale));
         Color::new(1.0, 1.0, 1.0).scale(noise).scale(0.5)
     }
 
-    fn simulate_marble_effect(&self, point: Point, depth: i32) -> Color {
+    fn simulate_marble_effect(&self, point: Point) -> Color {
         let (_, _, z) = point.get_point();
-        let noise = self.gen_turbulence(point, depth);
+        let noise = self.gen_turbulence(point);
 
         Color::new(1.0, 1.0, 1.0)
             .scale(1.0 + f64::sin(self.scale * z + 10.0 * noise))
@@ -137,7 +146,9 @@ impl PerlinNoiseTexture {
 
 impl Texture for PerlinNoiseTexture {
     fn get_value(&self, u: f64, v: f64, point: Point) -> Color {
-        // self.simulate_white_noise(point, 7)
-        self.simulate_marble_effect(point, 7)
+        match self.effect {
+            PerlinNoiseEffect::Marble => self.simulate_marble_effect(point),
+            PerlinNoiseEffect::WhiteNoise => self.simulate_white_noise(point),
+        }
     }
 }
