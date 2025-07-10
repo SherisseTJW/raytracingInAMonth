@@ -14,7 +14,6 @@ use crate::{
 pub struct PerlinNoiseTexture {
     scale: f64,
     random_vector: Vec<Vector>,
-    random_float: Vec<f64>,
     x_perm: Vec<u64>,
     y_perm: Vec<u64>,
     z_perm: Vec<u64>,
@@ -24,12 +23,7 @@ impl PerlinNoiseTexture {
     const POINT_COUNT: i64 = 256;
 
     pub fn new(scale: f64) -> PerlinNoiseTexture {
-        let mut random_float = vec![];
         let mut random_vector = vec![];
-
-        for i in 0..Self::POINT_COUNT {
-            random_float.push(random_double());
-        }
 
         for i in 0..Self::POINT_COUNT {
             random_vector.push(get_random_unit_vector());
@@ -42,14 +36,27 @@ impl PerlinNoiseTexture {
         PerlinNoiseTexture {
             scale,
             random_vector,
-            random_float,
             x_perm,
             y_perm,
             z_perm,
         }
     }
 
-    fn gen_noise(&self, point: Point) -> f64 {
+    fn gen_turbulence(&self, point: Point, depth: i32) -> f64 {
+        let mut acc = 0.0;
+        let mut tmp_point = point;
+        let mut weight = 1.0;
+
+        for i in 0..depth {
+            acc += weight * self.gen_noise(&tmp_point);
+            weight *= 0.5;
+            tmp_point = tmp_point.scale(2.0);
+        }
+
+        acc.abs()
+    }
+
+    fn gen_noise(&self, point: &Point) -> f64 {
         let (x, y, z) = point.get_point();
 
         let fx = x.floor();
@@ -112,11 +119,25 @@ impl PerlinNoiseTexture {
 
         perm
     }
+
+    fn simulate_white_noise(&self, point: Point, depth: i32) -> Color {
+        let noise = self.gen_turbulence(point.scale(self.scale), depth);
+        Color::new(1.0, 1.0, 1.0).scale(noise).scale(0.5)
+    }
+
+    fn simulate_marble_effect(&self, point: Point, depth: i32) -> Color {
+        let (_, _, z) = point.get_point();
+        let noise = self.gen_turbulence(point, depth);
+
+        Color::new(1.0, 1.0, 1.0)
+            .scale(1.0 + f64::sin(self.scale * z + 10.0 * noise))
+            .scale(0.5)
+    }
 }
 
 impl Texture for PerlinNoiseTexture {
     fn get_value(&self, u: f64, v: f64, point: Point) -> Color {
-        let noise = self.gen_noise(point.scale(self.scale));
-        Color::new(1.0, 1.0, 1.0).scale(1.0 + noise).scale(0.5)
+        // self.simulate_white_noise(point, 7)
+        self.simulate_marble_effect(point, 7)
     }
 }
