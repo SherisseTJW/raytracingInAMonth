@@ -7,6 +7,8 @@ mod texture;
 mod utils;
 mod vector;
 
+use std::sync::Arc;
+
 use camera::Camera;
 use materials::{
     Materials, dielectric::DielectricMaterial, lambertian::LambertianMaterial, metal::MetalMaterial,
@@ -49,11 +51,11 @@ fn main() {
     // let air_bubble: Sphere = Sphere::new(Point::new(-1.0, 0.0, -1.0), 0.4, air_bubble_material);
     //
     // let mut hittable_list: HittableList = HittableList::new();
-    // hittable_list.add_hittable(Box::new(ground));
-    // hittable_list.add_hittable(Box::new(moving));
-    // hittable_list.add_hittable(Box::new(left));
-    // hittable_list.add_hittable(Box::new(right));
-    // hittable_list.add_hittable(Box::new(air_bubble));
+    // hittable_list.add_hittable(Arc::new(ground));
+    // hittable_list.add_hittable(Arc::new(moving));
+    // hittable_list.add_hittable(Arc::new(left));
+    // hittable_list.add_hittable(Arc::new(right));
+    // hittable_list.add_hittable(Arc::new(air_bubble));
     //
     // let size = hittable_list.get_num_hittables();
     // let mut hittables = hittable_list.get_hittables();
@@ -72,8 +74,8 @@ fn main() {
     // let right: Sphere = Sphere::new(Point::new(r, 0.0, -1.0), r, right_material);
     //
     // let mut world: HittableList = HittableList::new();
-    // world.add_hittable(Box::new(left));
-    // world.add_hittable(Box::new(right));
+    // world.add_hittable(Arc::new(left));
+    // world.add_hittable(Arc::new(right));
     //
     // let camera = Camera::default();
     // camera.render(world);
@@ -82,7 +84,7 @@ fn main() {
 
     // let mut world: HittableList = HittableList::new();
     //
-    // let ground_material = Materials::Lambertian(LambertianMaterial::new(Box::new(
+    // let ground_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
     //     CheckerTexture::new_from_solid_color(
     //         Color::new(0.2, 0.3, 0.1),
     //         Color::new(0.9, 0.9, 0.9),
@@ -90,7 +92,7 @@ fn main() {
     //     ),
     // )));
     // let ground = Sphere::new(Point::new(0.0, -1000.0, 0.0), 1000.0, ground_material);
-    // world.add_hittable(Box::new(ground));
+    // world.add_hittable(Arc::new(ground));
     //
     // for a in -8..8 {
     //     for b in -8..8 {
@@ -104,22 +106,22 @@ fn main() {
     //         if centre.subv(Point::new(4.0, 0.2, 0.0)).get_length() > 0.9 {
     //             if rdm_mat < 0.6 {
     //                 let albedo = get_random_unit_vector().multiply(get_random_unit_vector());
-    //                 let texture = Box::new(SolidColorTexture::new_from_color(albedo));
+    //                 let texture = Arc::new(SolidColorTexture::new_from_color(albedo));
     //
     //                 let mat = Materials::Lambertian(LambertianMaterial::new(texture));
     //                 let sphere = Sphere::new(centre, 0.2, mat);
-    //                 world.add_hittable(Box::new(sphere));
+    //                 world.add_hittable(Arc::new(sphere));
     //             } else if rdm_mat < 0.85 {
     //                 let albedo = get_random_unit_vector();
     //                 let fuzz = random_double_in_range(0.0, 0.5);
     //
     //                 let mat = Materials::Metal(MetalMaterial::new(albedo, fuzz));
     //                 let sphere = Sphere::new(centre, 0.2, mat);
-    //                 world.add_hittable(Box::new(sphere));
+    //                 world.add_hittable(Arc::new(sphere));
     //             } else {
     //                 let mat = Materials::Dielectric(DielectricMaterial::new(1.5));
     //                 let sphere = Sphere::new(centre, 0.2, mat);
-    //                 world.add_hittable(Box::new(sphere));
+    //                 world.add_hittable(Arc::new(sphere));
     //             }
     //         }
     //     }
@@ -127,17 +129,17 @@ fn main() {
     //
     // let mat1 = Materials::Dielectric(DielectricMaterial::new(1.5));
     // let sphere1 = Sphere::new(Point::new(0.0, 1.0, 0.0), 1.0, mat1);
-    // world.add_hittable(Box::new(sphere1));
+    // world.add_hittable(Arc::new(sphere1));
     //
-    // let mat2 = Materials::Lambertian(LambertianMaterial::new(Box::new(
+    // let mat2 = Materials::Lambertian(LambertianMaterial::new(Arc::new(
     //     SolidColorTexture::new_from_rgb(0.4, 0.2, 0.1),
     // )));
     // let sphere2 = Sphere::new(Point::new(-4.0, 1.0, 0.0), 1.0, mat2);
-    // world.add_hittable(Box::new(sphere2));
+    // world.add_hittable(Arc::new(sphere2));
     //
     // let mat3 = Materials::Metal(MetalMaterial::new(Color::new(0.7, 0.6, 0.5), 0.0));
     // let sphere3 = Sphere::new(Point::new(4.0, 1.0, 0.0), 1.0, mat3);
-    // world.add_hittable(Box::new(sphere3));
+    // world.add_hittable(Arc::new(sphere3));
     //
     // let size = world.get_num_hittables();
     // let mut hittables = world.get_hittables();
@@ -157,12 +159,12 @@ fn main() {
 
     // NOTE: Scene 5 - Earth
     let centre_material =
-        Materials::Lambertian(LambertianMaterial::new(Box::new(ImageTexture::new("./texture_assets/earthmap.jpg"))));
+        Materials::Lambertian(LambertianMaterial::new(Arc::new(ImageTexture::new("./texture_assets/earthmap.jpg"))));
 
     let centre: Sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 0.3, centre_material);
 
     let mut hittable_list: HittableList = HittableList::new();
-    hittable_list.add_hittable(Box::new(centre));
+    hittable_list.add_hittable(Arc::new(centre));
 
     let size = hittable_list.get_num_hittables();
     let mut hittables = hittable_list.get_hittables();

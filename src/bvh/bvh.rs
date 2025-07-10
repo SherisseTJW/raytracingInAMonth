@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use std::cmp::Ordering;
 
 use crate::{
@@ -8,14 +9,14 @@ use crate::{
 };
 
 pub struct BvhNode {
-    left_child: Option<Box<dyn Hittable>>,
-    right_child: Option<Box<dyn Hittable>>,
+    left_child: Option<Arc<dyn Hittable>>,
+    right_child: Option<Arc<dyn Hittable>>,
     bounding_box: Aabb,
-    hittable: Option<Box<dyn Hittable>>,
+    hittable: Option<Arc<dyn Hittable>>,
 }
 
 impl BvhNode {
-    pub fn new_from_hittable(hittable: &Box<dyn Hittable>) -> BvhNode {
+    pub fn new_from_hittable(hittable: &Arc<dyn Hittable>) -> BvhNode {
         BvhNode {
             left_child: None,
             right_child: None,
@@ -24,7 +25,7 @@ impl BvhNode {
         }
     }
 
-    pub fn new(hittable_list: &mut Vec<Box<dyn Hittable>>, start: usize, end: usize) -> BvhNode {
+    pub fn new(hittable_list: &mut Vec<Arc<dyn Hittable>>, start: usize, end: usize) -> BvhNode {
         let object_span = end - start;
         if object_span == 0 {
             BvhNode {
@@ -48,8 +49,8 @@ impl BvhNode {
             let bounding_box = merge_aabb(&left_child.get_aabb(), &right_child.get_aabb());
 
             BvhNode {
-                left_child: Some(Box::new(left_child)),
-                right_child: Some(Box::new(right_child)),
+                left_child: Some(Arc::new(left_child)),
+                right_child: Some(Arc::new(right_child)),
                 bounding_box,
                 hittable: None,
             }
@@ -63,7 +64,7 @@ impl BvhNode {
             }
             let axis = bounding_box.get_longest_axis();
 
-            let hittable_comparator = |a: &Box<dyn Hittable>, b: &Box<dyn Hittable>| -> Ordering {
+            let hittable_comparator = |a: &Arc<dyn Hittable>, b: &Arc<dyn Hittable>| -> Ordering {
                 let (a_min, _) = a.get_aabb().get_axis_interval(axis).get_min_max();
                 let (b_min, _) = b.get_aabb().get_axis_interval(axis).get_min_max();
 
@@ -82,8 +83,8 @@ impl BvhNode {
             let right_child = BvhNode::new(hittable_list, mid, end);
 
             BvhNode {
-                left_child: Some(Box::new(left_child)),
-                right_child: Some(Box::new(right_child)),
+                left_child: Some(Arc::new(left_child)),
+                right_child: Some(Arc::new(right_child)),
                 bounding_box,
                 hittable: None,
             }
@@ -133,8 +134,8 @@ impl Hittable for BvhNode {
         self.bounding_box
     }
 
-    fn clone_box(&self) -> Box<dyn Hittable> {
-        Box::new(self.clone())
+    fn clone_box(&self) -> Arc<dyn Hittable> {
+        Arc::new(self.clone())
     }
 }
 

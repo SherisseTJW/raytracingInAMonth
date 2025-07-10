@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::{
     objects::hittable::HitRecord,
     ray::Ray,
@@ -9,11 +10,11 @@ use super::scatterable::{ScatterRecord, Scatterable};
 
 #[derive(Clone)]
 pub struct LambertianMaterial {
-    texture: Box<dyn Texture>,
+    texture: Arc<dyn Texture>,
 }
 
 impl LambertianMaterial {
-    pub fn new(texture: Box<dyn Texture>) -> LambertianMaterial {
+    pub fn new(texture: Arc<dyn Texture>) -> LambertianMaterial {
         LambertianMaterial { texture }
     }
 }

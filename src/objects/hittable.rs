@@ -1,3 +1,5 @@
+use std::sync::Arc;
+
 use crate::{
     bvh::aabb::{Aabb, merge_aabb},
     materials::Materials,
@@ -9,13 +11,7 @@ use crate::{
 pub trait Hittable: Send + Sync {
     fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord>;
     fn get_aabb(&self) -> Aabb;
-    fn clone_box(&self) -> Box<dyn Hittable>;
-}
-
-impl Clone for Box<dyn Hittable> {
-    fn clone(&self) -> Box<dyn Hittable> {
-        self.clone_box()
-    }
+    fn clone_box(&self) -> Arc<dyn Hittable>;
 }
 
 #[derive(Clone)]
@@ -90,7 +86,7 @@ impl HitRecord {
 #[derive(Clone)]
 pub struct HittableList {
     // NOTE: https://stackoverflow.com/a/74974361
-    hittable_list: Vec<Box<dyn Hittable>>,
+    hittable_list: Vec<Arc<dyn Hittable>>,
     bounding_box: Aabb,
 }
 
@@ -102,7 +98,7 @@ impl HittableList {
         }
     }
 
-    pub fn add_hittable(&mut self, hittable: Box<dyn Hittable>) {
+    pub fn add_hittable(&mut self, hittable: Arc<dyn Hittable>) {
         let new_bounding_box = merge_aabb(&self.bounding_box, &hittable.get_aabb());
         self.bounding_box = new_bounding_box;
 
@@ -113,7 +109,7 @@ impl HittableList {
         self.hittable_list.len()
     }
 
-    pub fn get_hittables(self) -> Vec<Box<dyn Hittable>> {
+    pub fn get_hittables(self) -> Vec<Arc<dyn Hittable>> {
         self.hittable_list
     }
 }
@@ -146,8 +142,8 @@ impl Hittable for HittableList {
         self.bounding_box
     }
 
-    fn clone_box(&self) -> Box<dyn Hittable> {
-        Box::new(self.clone())
+    fn clone_box(&self) -> Arc<dyn Hittable> {
+        Arc::new(self.clone())
     }
 }
 

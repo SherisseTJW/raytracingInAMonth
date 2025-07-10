@@ -1,3 +1,4 @@
+use std::sync::Arc;
 use crate::{
     bvh::aabb::{merge_aabb, Aabb},
     materials::Materials,
@@ -129,8 +130,8 @@ impl Hittable for Sphere {
         self.bounding_box
     }
 
-    fn clone_box(&self) -> Box<dyn Hittable> {
-        Box::new(self.clone())
+    fn clone_box(&self) -> Arc<dyn Hittable> {
+        Arc::new(self.clone())
     }
 }
 
