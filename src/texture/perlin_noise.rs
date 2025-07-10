@@ -49,6 +49,10 @@ impl PerlinNoiseTexture {
         let v = y - fy;
         let w = z - fz;
 
+        let uu = u * u * (3.0 - 2.0 * u);
+        let vv = v * v * (3.0 - 2.0 * v);
+        let ww = w * w * (3.0 - 2.0 * w);
+
         let mut c = [[[0.0; 2]; 2]; 2];
 
         for di in 0..2 {
@@ -73,9 +77,9 @@ impl PerlinNoiseTexture {
                     let fdj = dj as f64;
                     let fdk = dk as f64;
 
-                    let i = (u * fdi) + (1.0 - fdi) * (1.0 - u);
-                    let j = (v * fdj) + (1.0 - fdj) * (1.0 - v);
-                    let k = (w * fdk) + (1.0 - fdk) * (1.0 - w);
+                    let i = (uu * fdi) + (1.0 - fdi) * (1.0 - uu);
+                    let j = (vv * fdj) + (1.0 - fdj) * (1.0 - vv);
+                    let k = (ww * fdk) + (1.0 - fdk) * (1.0 - ww);
 
                     acc += i * j * k * c[di][dj][dk];
                 }
