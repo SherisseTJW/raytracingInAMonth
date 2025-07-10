@@ -1,5 +1,8 @@
 // NOTE: Reference Link: https://adrianb.io/2014/08/09/perlinnoise.html
 
+use core::f64;
+use std::i64;
+
 use crate::{
     texture::texture::Texture,
     utils::functions::{random_double, random_int_in_range},
@@ -36,12 +39,44 @@ impl PerlinNoiseTexture {
     fn gen_noise(&self, point: Point) -> f64 {
         let (x, y, z) = point.get_point();
 
-        let i = ((4.0 * x) as i64 & 255) as usize;
-        let j = ((4.0 * y) as i64 & 255) as usize;
-        let k = ((4.0 * z) as i64 & 255) as usize;
+        let u = x - x.floor();
+        let v = y - y.floor();
+        let w = z - z.floor();
 
-        let idx = (self.x_perm[i] ^ self.y_perm[j] ^ self.z_perm[k]) as usize;
-        self.random_float[idx]
+        let mut c = [[[0.0; 2]; 2]; 2];
+
+        for di in 0..2 {
+            for dj in 0..2 {
+                for dk in 0..2 {
+                    let i = ((x.floor() as i64 + di) & 255) as usize;
+                    let j = ((y.floor() as i64 + dj) & 255) as usize;
+                    let k = ((z.floor() as i64 + dk) & 255) as usize;
+
+                    let idx = (self.x_perm[i] ^ self.y_perm[j] ^ self.z_perm[k]) as usize;
+                    c[di as usize][dj as usize][dk as usize] = self.random_float[idx];
+                }
+            }
+        }
+
+        let mut acc = 0.0;
+
+        for di in 0..2 {
+            for dj in 0..2 {
+                for dk in 0..2 {
+                    let fdi = di as f64;
+                    let fdj = dj as f64;
+                    let fdk = dk as f64;
+
+                    let i = (u * fdi) + (1.0 - fdi) * (1.0 - u);
+                    let j = (v * fdj) + (1.0 - fdj) * (1.0 - v);
+                    let k = (w * fdk) + (1.0 - fdk) * (1.0 - w);
+
+                    acc += i * j * k * c[i as usize][j as usize][k as usize];
+                }
+            }
+        }
+
+        acc
     }
 
     fn generate_perm(point_count: i64) -> Vec<i64> {
