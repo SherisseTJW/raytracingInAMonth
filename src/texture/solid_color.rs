@@ -3,7 +3,6 @@ use crate::{
     vector::{Color, Point},
 };
 
-#[derive(Clone)]
 pub struct SolidColorTexture {
     albedo: Color,
 }
@@ -23,9 +22,5 @@ impl SolidColorTexture {
 impl Texture for SolidColorTexture {
     fn get_value(&self, u: f64, v: f64, point: Point) -> Color {
         self.albedo
-    }
-
-    fn clone_box(&self) -> Box<dyn Texture> {
-        Box::new(self.clone())
     }
 }

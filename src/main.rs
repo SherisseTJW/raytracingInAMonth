@@ -26,9 +26,10 @@ use crate::{
         checker_ground_scene::checker_scene,
         earth_scene::earth_scene,
         final_render_1::{self, final_render_1_scene},
+        perlin_scene::{self, perlin_scene},
     },
     texture::{
-        checker::CheckerTexture, image::ImageTexture, solid_color::SolidColorTexture,
+        checker::CheckerTexture, image::ImageTexture, perlin_noise, solid_color::SolidColorTexture,
         texture::Texture,
     },
     utils::{
@@ -53,10 +54,14 @@ fn main() {
 
     // NOTE: Final Render Scene 1 (From Ray Tracing in a Weekend)
     // but with a Checker Texture on the ground
-    let checker_scene = checker_scene();
-    checker_scene.render();
+    // let checker_scene = checker_scene();
+    // checker_scene.render();
 
     // NOTE: Scene 5 - Earth
     // let earth_scene = earth_scene();
     // earth_scene.render();
+
+    // NOTE: Perlin Noise ground + Main centre sphere
+    let perlin_scene = perlin_scene();
+    perlin_scene.render();
 }

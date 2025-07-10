@@ -1,9 +1,12 @@
-use image::{ImageReader, RgbImage, GenericImageView};
+use image::{GenericImageView, ImageReader, RgbImage};
 use std::sync::Arc;
 
-use crate::{texture::texture::Texture, utils::interval::Interval, vector::{Color, Point}};
+use crate::{
+    texture::texture::Texture,
+    utils::interval::Interval,
+    vector::{Color, Point},
+};
 
-#[derive(Clone)]
 pub struct ImageTexture {
     image: Arc<RgbImage>,
     normalised_interval: Interval,
@@ -16,20 +19,28 @@ impl ImageTexture {
                 Ok(decoded_img) => {
                     let (width, height): (u32, u32) = decoded_img.dimensions();
                     if width <= 0 || height <= 0 {
-                        panic!("Invalid image dimensions at {} for image texture", image_filepath)
+                        panic!(
+                            "Invalid image dimensions at {} for image texture",
+                            image_filepath
+                        )
                     }
 
                     decoded_img.to_rgb8()
-                },
-                Err(err) => panic!("Could not decode image at {} for image texture\n{}", image_filepath, err)
-
+                }
+                Err(err) => panic!(
+                    "Could not decode image at {} for image texture\n{}",
+                    image_filepath, err
+                ),
             },
-            Err(err) => panic!("Could not open image at {} for image texture\n{}", image_filepath, err)
+            Err(err) => panic!(
+                "Could not open image at {} for image texture\n{}",
+                image_filepath, err
+            ),
         };
 
-        ImageTexture { 
-            image: Arc::new(image), 
-            normalised_interval: Interval::new(0.0, 1.0) 
+        ImageTexture {
+            image: Arc::new(image),
+            normalised_interval: Interval::new(0.0, 1.0),
         }
     }
 }
@@ -53,9 +64,4 @@ impl Texture for ImageTexture {
 
         Color::new(r, g, b)
     }
-
-    fn clone_box(&self) -> Box<dyn Texture> {
-        Box::new(self.clone())
-    }
 }
-

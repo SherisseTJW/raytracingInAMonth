@@ -1,10 +1,9 @@
-use std::sync::Arc;
 use crate::{
     texture::{solid_color::SolidColorTexture, texture::Texture},
     vector::{Color, Point},
 };
+use std::sync::Arc;
 
-#[derive(Clone)]
 pub struct CheckerTexture {
     even_texture: Arc<dyn Texture>,
     odd_texture: Arc<dyn Texture>,
@@ -46,13 +45,8 @@ impl Texture for CheckerTexture {
 
         if (x_val + y_val + z_val) % 2 == 0 {
             self.odd_texture.get_value(u, v, point)
-        }
-        else {
+        } else {
             self.even_texture.get_value(u, v, point)
         }
-    }
-
-    fn clone_box(&self) -> Box<dyn Texture> {
-        Box::new(self.clone())
     }
 }
