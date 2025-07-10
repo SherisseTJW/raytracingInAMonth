@@ -24,7 +24,7 @@ pub fn perlin_scene() -> Scene {
     )));
 
     let ground: Sphere = Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0, ground_material);
-    let centre: Sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 0.4, centre_material);
+    let centre: Sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 0.3, centre_material);
 
     let mut hittable_list: HittableList = HittableList::new();
     hittable_list.add_hittable(Arc::new(ground));
