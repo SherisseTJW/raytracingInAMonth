@@ -1,5 +1,5 @@
-use std::sync::Arc;
 use std::cmp::Ordering;
+use std::sync::Arc;
 
 use crate::{
     bvh::aabb::{Aabb, merge_aabb},

@@ -1,17 +1,25 @@
 // NOTE: Axis-Bounded Bounding Boxes
 
-use crate::{ray::Ray, utils::interval::{merge_interval, Interval, EMPTY_INTERVAL}, vector::Point};
+use crate::{
+    ray::Ray,
+    utils::interval::{EMPTY_INTERVAL, Interval, merge_interval},
+    vector::Point,
+};
 
 #[derive(Clone, Copy)]
 pub struct Aabb {
     x: Interval,
     y: Interval,
-    z: Interval
+    z: Interval,
 }
 
 impl Aabb {
     pub fn new_from_interval(x: Interval, y: Interval, z: Interval) -> Aabb {
-        Aabb { x, y, z }
+        Aabb {
+            x: Self::pad_axis(&x),
+            y: Self::pad_axis(&y),
+            z: Self::pad_axis(&z),
+        }
     }
 
     pub fn new_from_extrema_points(a: Point, b: Point) -> Aabb {
@@ -36,7 +44,11 @@ impl Aabb {
             Interval::new(bz, az)
         };
 
-        Aabb { x, y, z }
+        Aabb {
+            x: Self::pad_axis(&x),
+            y: Self::pad_axis(&y),
+            z: Self::pad_axis(&z),
+        }
     }
 
     pub fn hit(&self, ray: &Ray, ray_t: &Interval) -> Option<Interval> {
@@ -52,23 +64,21 @@ impl Aabb {
             let cur_axis_interval = self.get_axis_interval(axis);
             let inv_ray_direction = 1.0 / ray_direction.get_point_by_axis(axis);
 
-            let (min, max) = cur_axis_interval.get_min_max(); 
+            let (min, max) = cur_axis_interval.get_min_max();
 
             let t0 = (min - ray_origin.get_point_by_axis(axis)) * inv_ray_direction;
             let t1 = (max - ray_origin.get_point_by_axis(axis)) * inv_ray_direction;
 
-
             if t0 < t1 {
                 ray_t_min = ray_t_min.max(t0);
                 ray_t_max = ray_t_max.min(t1);
-            }
-            else {
+            } else {
                 ray_t_min = ray_t_min.max(t1);
                 ray_t_max = ray_t_max.min(t0);
             }
 
             if ray_t_max <= ray_t_min {
-                return None
+                return None;
             }
         }
 
@@ -78,11 +88,9 @@ impl Aabb {
     pub fn get_axis_interval(&self, axis: i8) -> Interval {
         if axis == 0 {
             self.x
-        }
-        else if axis == 1 {
+        } else if axis == 1 {
             self.y
-        }
-        else {
+        } else {
             self.z
         }
     }
@@ -94,19 +102,31 @@ impl Aabb {
 
         if x_size > y_size && x_size > z_size {
             0
-        }
-        else if y_size > x_size && y_size > z_size {
+        } else if y_size > x_size && y_size > z_size {
             1
-        }
-        else {
+        } else {
             2
+        }
+    }
+
+    fn pad_axis(axis: &Interval) -> Interval {
+        let delta: f64 = 0.001;
+
+        if axis.get_size() < delta {
+            axis.expand(delta)
+        } else {
+            *axis
         }
     }
 }
 
 impl Default for Aabb {
     fn default() -> Self {
-        Aabb { x: EMPTY_INTERVAL, y: EMPTY_INTERVAL, z: EMPTY_INTERVAL }
+        Aabb {
+            x: EMPTY_INTERVAL,
+            y: EMPTY_INTERVAL,
+            z: EMPTY_INTERVAL,
+        }
     }
 }
 
@@ -119,9 +139,9 @@ pub fn merge_aabb(a: &Aabb, b: &Aabb) -> Aabb {
     let by = b.get_axis_interval(1);
     let bz = b.get_axis_interval(2);
 
-    Aabb { 
-        x: merge_interval(ax, bx), 
-        y: merge_interval(ay, by), 
-        z: merge_interval(az, bz) 
+    Aabb {
+        x: merge_interval(ax, bx),
+        y: merge_interval(ay, by),
+        z: merge_interval(az, bz),
     }
 }
