@@ -1,3 +1,5 @@
+use std::fmt::Display;
+
 use crate::{
     texture::texture::Texture,
     vector::{Color, Point},
@@ -22,5 +24,11 @@ impl SolidColorTexture {
 impl Texture for SolidColorTexture {
     fn get_value(&self, u: f64, v: f64, point: Point) -> Color {
         self.albedo
+    }
+}
+
+impl Display for SolidColorTexture {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "SolidColorTexture of Color: {}", self.albedo)
     }
 }

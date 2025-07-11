@@ -137,12 +137,6 @@ impl Vector {
     }
 }
 
-impl Display for Vector {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "({}, {}, {})", self.x, self.y, self.z)
-    }
-}
-
 pub fn cross_product(u: Vector, v: Vector) -> Vector {
     let (u1, u2, u3) = u.get_point();
     let (v1, v2, v3) = v.get_point();
@@ -226,4 +220,14 @@ pub fn refract(r: Vector, normal: Vector, etai_over_etat: f64) -> Vector {
     let r_out_para: Vector = normal.scale(-f64::abs(1.0 - r_out_perp.get_length_squared()).sqrt());
 
     r_out_perp.addv(r_out_para)
+}
+
+impl Display for Vector {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "Vector / Point (x, y, z) OR Color (r, g, b) : ({}, {}, {})",
+            self.x, self.y, self.z
+        )
+    }
 }

@@ -1,7 +1,10 @@
 // NOTE: Reference Link: https://adrianb.io/2014/08/09/perlinnoise.html
 
 use core::f64;
-use std::{i64, isize};
+use std::{
+    fmt::{Display, write},
+    i64, isize,
+};
 
 use rand::{distr::weighted, seq::SliceRandom, thread_rng};
 
@@ -154,5 +157,11 @@ impl Texture for PerlinNoiseTexture {
             PerlinNoiseEffect::Marble => self.simulate_marble_effect(point),
             PerlinNoiseEffect::WhiteNoise => self.simulate_white_noise(point),
         }
+    }
+}
+
+impl Display for PerlinNoiseTexture {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "PerlinNoiseTexture")
     }
 }

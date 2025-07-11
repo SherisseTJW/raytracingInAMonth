@@ -2,7 +2,7 @@ use crate::{
     texture::{solid_color::SolidColorTexture, texture::Texture},
     vector::{Color, Point},
 };
-use std::sync::Arc;
+use std::{fmt::Display, sync::Arc};
 
 pub struct CheckerTexture {
     even_texture: Arc<dyn Texture>,
@@ -48,5 +48,15 @@ impl Texture for CheckerTexture {
         } else {
             self.even_texture.get_value(u, v, point)
         }
+    }
+}
+
+impl Display for CheckerTexture {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(
+            f,
+            "CheckerTexture with Even Texture as {} and Odd Texture as {}",
+            self.even_texture, self.odd_texture
+        )
     }
 }

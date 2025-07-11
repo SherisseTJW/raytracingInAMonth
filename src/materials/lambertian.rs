@@ -1,10 +1,10 @@
-use std::sync::Arc;
 use crate::{
     objects::hittable::HitRecord,
     ray::Ray,
     texture::{solid_color::SolidColorTexture, texture::Texture},
     vector::{Color, Vector, get_random_unit_vector_on_hemisphere},
 };
+use std::{fmt::Display, sync::Arc};
 
 use super::scatterable::{ScatterRecord, Scatterable};
 
@@ -44,5 +44,11 @@ impl Scatterable for LambertianMaterial {
             scatter_ray,
             self.texture.get_value(u, v, hit_record.get_point()),
         ))
+    }
+}
+
+impl Display for LambertianMaterial {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "LambertianMaterial with Texture: {}", self.texture)
     }
 }

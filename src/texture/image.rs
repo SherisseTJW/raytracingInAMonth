@@ -1,5 +1,5 @@
 use image::{GenericImageView, ImageReader, RgbImage};
-use std::sync::Arc;
+use std::{fmt::Display, sync::Arc};
 
 use crate::{
     texture::texture::Texture,
@@ -63,5 +63,11 @@ impl Texture for ImageTexture {
         let b = pixel_color[2] as f64 * color_scale;
 
         Color::new(r, g, b)
+    }
+}
+
+impl Display for ImageTexture {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "ImageTexture")
     }
 }
