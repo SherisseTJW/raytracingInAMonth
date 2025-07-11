@@ -24,11 +24,9 @@ impl Vector {
     pub fn get_point_by_axis(self, axis: i8) -> f64 {
         if axis == 0 {
             self.x
-        }
-        else if axis == 1 {
+        } else if axis == 1 {
             self.y
-        }
-        else {
+        } else {
             self.z
         }
     }
@@ -181,6 +179,14 @@ pub fn get_random_unit_vector() -> Vector {
             break cur_vector.scale(1.0 / length_squared.sqrt());
         }
     }
+}
+
+pub fn get_random_unit_vector_in_range(min: f64, max: f64) -> Vector {
+    Vector::new(
+        random_double_in_range(min, max),
+        random_double_in_range(min, max),
+        random_double_in_range(min, max),
+    )
 }
 
 pub fn get_random_unit_vector_on_hemisphere(normal: Vector) -> Vector {

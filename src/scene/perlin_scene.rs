@@ -20,10 +20,10 @@ use crate::{
 
 pub fn perlin_scene() -> Scene {
     let ground_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
-        PerlinNoiseTexture::new(12.0, 7, PerlinNoiseEffect::Marble),
+        PerlinNoiseTexture::new(3.0, 4, PerlinNoiseEffect::WhiteNoise),
     )));
     let centre_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
-        PerlinNoiseTexture::new(12.0, 7, PerlinNoiseEffect::WhiteNoise),
+        PerlinNoiseTexture::new(20.0, 15, PerlinNoiseEffect::Marble),
     )));
 
     let ground: Sphere = Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0, ground_material);
@@ -34,5 +34,13 @@ pub fn perlin_scene() -> Scene {
     hittable_list.add_hittable(Arc::new(centre));
 
     let camera = Camera::default();
+    camera.override_camera_pos(
+        Point::new(13.0, 2.0, 3.0),
+        Point::new(0.0, 0.0, 0.0),
+        Vector::new(0.0, 1.0, 0.0),
+        20.0,
+        0.0,
+        2.0,
+    );
     Scene::new(hittable_list, camera)
 }

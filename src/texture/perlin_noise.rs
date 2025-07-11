@@ -8,7 +8,9 @@ use rand::{distr::weighted, seq::SliceRandom, thread_rng};
 use crate::{
     texture::texture::Texture,
     utils::functions::{random_double, random_int_in_range},
-    vector::{Color, Point, Vector, dot_product, get_random_unit_vector},
+    vector::{
+        Color, Point, Vector, dot_product, get_random_unit_vector, get_random_unit_vector_in_range,
+    },
 };
 
 pub enum PerlinNoiseEffect {
@@ -33,7 +35,7 @@ impl PerlinNoiseTexture {
         let mut random_vector = vec![];
 
         for i in 0..Self::POINT_COUNT {
-            random_vector.push(get_random_unit_vector());
+            random_vector.push(get_random_unit_vector_in_range(-1.0, 1.0));
         }
 
         let x_perm = Self::generate_perm();
@@ -76,24 +78,26 @@ impl PerlinNoiseTexture {
         let v = y - fy;
         let w = z - fz;
 
-        let uu = u * u * (3.0 - 2.0 * u);
-        let vv = v * v * (3.0 - 2.0 * v);
-        let ww = w * w * (3.0 - 2.0 * w);
-
-        let mut c = [[[get_random_unit_vector(); 2]; 2]; 2];
+        let mut c = [[[Vector::new(0.0, 0.0, 0.0); 2]; 2]; 2];
 
         for di in 0..2 {
             for dj in 0..2 {
                 for dk in 0..2 {
-                    let i = ((fx as i64 + di) & 255) as usize;
-                    let j = ((fy as i64 + dj) & 255) as usize;
-                    let k = ((fz as i64 + dk) & 255) as usize;
+                    let i = ((fx as i32 + di) & 255) as usize;
+                    let j = ((fy as i32 + dj) & 255) as usize;
+                    let k = ((fz as i32 + dk) & 255) as usize;
 
                     c[di as usize][dj as usize][dk as usize] = self.random_vector
                         [(self.x_perm[i] ^ self.y_perm[j] ^ self.z_perm[k]) as usize];
                 }
             }
         }
+
+        // NOTE: Perlin Interpolation
+
+        let uu = u * u * (3.0 - 2.0 * u);
+        let vv = v * v * (3.0 - 2.0 * v);
+        let ww = w * w * (3.0 - 2.0 * w);
 
         let mut acc = 0.0;
 
@@ -105,9 +109,9 @@ impl PerlinNoiseTexture {
                     let fdk = dk as f64;
                     let weighted_vec = Vector::new(u - fdi, v - fdj, w - fdk);
 
-                    let i = (uu * fdi) + (1.0 - fdi) * (1.0 - uu);
-                    let j = (vv * fdj) + (1.0 - fdj) * (1.0 - vv);
-                    let k = (ww * fdk) + (1.0 - fdk) * (1.0 - ww);
+                    let i = uu * fdi + (1.0 - fdi) * (1.0 - uu);
+                    let j = vv * fdj + (1.0 - fdj) * (1.0 - vv);
+                    let k = ww * fdk + (1.0 - fdk) * (1.0 - ww);
 
                     acc += i * j * k * dot_product(c[di][dj][dk], weighted_vec);
                 }
