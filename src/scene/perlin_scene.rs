@@ -26,17 +26,17 @@ pub fn perlin_scene() -> Scene {
         PerlinNoiseTexture::new(20.0, 15, PerlinNoiseEffect::Marble),
     )));
 
-    let ground: Sphere = Sphere::new(Point::new(0.0, -100.5, -1.0), 100.0, ground_material);
-    let centre: Sphere = Sphere::new(Point::new(0.0, 0.0, 0.0), 0.3, centre_material);
+    let ground: Sphere = Sphere::new(Point::new(0.0, -1000.0, 0.0), 1000.0, ground_material);
+    let centre: Sphere = Sphere::new(Point::new(0.0, 2.0, 0.0), 2.0, centre_material);
 
     let mut hittable_list: HittableList = HittableList::new();
     hittable_list.add_hittable(Arc::new(ground));
     hittable_list.add_hittable(Arc::new(centre));
 
-    let camera = Camera::default();
-    camera.override_camera_pos(
-        Point::new(13.0, 2.0, 3.0),
-        Point::new(0.0, 0.0, 0.0),
+    let mut camera = Camera::default();
+    camera = camera.override_camera_pos(
+        Point::new(13.0, 12.0, 8.0),
+        Point::new(0.0, 2.0, 0.0),
         Vector::new(0.0, 1.0, 0.0),
         20.0,
         0.0,

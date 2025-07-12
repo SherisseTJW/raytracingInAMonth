@@ -63,10 +63,10 @@ fn main() {
     // earth_scene.render();
 
     // NOTE: Perlin Noise ground + Main centre sphere
-    // let perlin_scene = perlin_scene();
-    // perlin_scene.render();
+    let perlin_scene = perlin_scene();
+    perlin_scene.render();
 
     // NOTE: Basic Quad Scene (Think a box but the sides are not connected)
-    let quad_scene = quad_scene();
-    quad_scene.render();
+    // let quad_scene = quad_scene();
+    // quad_scene.render();
 }
