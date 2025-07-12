@@ -25,6 +25,7 @@ use crate::{
         basic_scene::{self, basic_scene},
         camera_fov_scene::{self, camera_fov_scene},
         checker_ground_scene::checker_scene,
+        cornell_box_scene::{self, cornell_box_scene},
         earth_scene::earth_scene,
         final_render_1::{self, final_render_1_scene},
         perlin_earth_scene::{self, perlin_earth_scene},
@@ -77,6 +78,10 @@ fn main() {
     // perlin_earth.render();
 
     // NOTE: Simple Light Scene requiring a diffuse light
-    let simple_light_scene = simple_light_scene();
-    simple_light_scene.render();
+    // let simple_light_scene = simple_light_scene();
+    // simple_light_scene.render();
+
+    // NOTE: Cornell Box Scene - Empty for now..
+    let cornell_box_scene = cornell_box_scene();
+    cornell_box_scene.render();
 }

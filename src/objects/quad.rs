@@ -33,22 +33,11 @@ impl Quad {
         let bounding_box_diagonal2: Aabb = Aabb::new_from_extrema_points(topleft, bottomright);
         let bounding_box = merge_aabb(&bounding_box_diagonal1, &bounding_box_diagonal2);
 
-        println!("{}", bounding_box);
-        // let bounding_box = Aabb::new_from_extrema_points(q, q.addv(u).addv(v));
-
         let n = cross_product(u, v);
         let normal = n.unit();
         let d: f64 = dot_product(normal, q);
 
         let w = n.scale(1.0 / dot_product(n, n));
-
-        println!("Quad::new():");
-        println!("   q = {}", q);
-        println!("   u = {}", u);
-        println!("   v = {}", v);
-        println!("   cross(u, v) = {}", n);
-        println!("   normal = {}", normal);
-        println!("   d = {}", d);
 
         Quad {
             q,
