@@ -21,6 +21,7 @@ use vector::{Point, Vector};
 use crate::{
     bvh::bvh::BvhNode,
     scene::{
+        basic_light_scene::{self, simple_light_scene},
         basic_scene::{self, basic_scene},
         camera_fov_scene::{self, camera_fov_scene},
         checker_ground_scene::checker_scene,
@@ -72,6 +73,10 @@ fn main() {
     // quad_scene.render();
 
     // NOTE: Perlin Noise ground + Main centre sphere of Earth Image Texture
-    let perlin_earth = perlin_earth_scene();
-    perlin_earth.render();
+    // let perlin_earth = perlin_earth_scene();
+    // perlin_earth.render();
+
+    // NOTE: Simple Light Scene requiring a diffuse light
+    let simple_light_scene = simple_light_scene();
+    simple_light_scene.render();
 }

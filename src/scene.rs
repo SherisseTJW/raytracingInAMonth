@@ -1,3 +1,4 @@
+pub mod basic_light_scene;
 pub mod basic_scene;
 pub mod camera_fov_scene;
 pub mod checker_ground_scene;

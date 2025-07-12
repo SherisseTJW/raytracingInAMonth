@@ -18,7 +18,7 @@ impl ImageTexture {
             Ok(raw_img) => match raw_img.decode() {
                 Ok(decoded_img) => {
                     let (width, height): (u32, u32) = decoded_img.dimensions();
-                    if width <= 0 || height <= 0 {
+                    if width == 0 || height == 0 {
                         panic!(
                             "Invalid image dimensions at {} for image texture",
                             image_filepath
