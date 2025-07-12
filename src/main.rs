@@ -26,6 +26,7 @@ use crate::{
         checker_ground_scene::checker_scene,
         earth_scene::earth_scene,
         final_render_1::{self, final_render_1_scene},
+        perlin_earth_scene::{self, perlin_earth_scene},
         perlin_scene::{self, perlin_scene},
         quad_scene::quad_scene,
     },
@@ -63,10 +64,14 @@ fn main() {
     // earth_scene.render();
 
     // NOTE: Perlin Noise ground + Main centre sphere
-    let perlin_scene = perlin_scene();
-    perlin_scene.render();
+    // let perlin_scene = perlin_scene();
+    // perlin_scene.render();
 
     // NOTE: Basic Quad Scene (Think a box but the sides are not connected)
     // let quad_scene = quad_scene();
     // quad_scene.render();
+
+    // NOTE: Perlin Noise ground + Main centre sphere of Earth Image Texture
+    let perlin_earth = perlin_earth_scene();
+    perlin_earth.render();
 }
