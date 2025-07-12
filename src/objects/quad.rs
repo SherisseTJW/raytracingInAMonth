@@ -24,12 +24,19 @@ pub struct Quad {
 
 impl Quad {
     pub fn new(q: Point, u: Vector, v: Vector, material: Materials) -> Quad {
-        // let bounding_box_diagonal1: Aabb = Aabb::new_from_extrema_points(q, q.addv(u).addv(v));
-        // let bounding_box_diagonal2: Aabb = Aabb::new_from_extrema_points(q.addv(u), q.addv(v));
-        // let bounding_box = merge_aabb(&bounding_box_diagonal1, &bounding_box_diagonal2);
-        let bounding_box = Aabb::new_from_extrema_points(q, q.addv(u).addv(v));
+        let bottomleft = q;
+        let topleft = q.addv(u);
+        let bottomright = q.addv(v);
+        let topright = q.addv(u).addv(v);
 
-        let n = cross_product(v, u);
+        let bounding_box_diagonal1: Aabb = Aabb::new_from_extrema_points(bottomleft, topright);
+        let bounding_box_diagonal2: Aabb = Aabb::new_from_extrema_points(topleft, bottomright);
+        let bounding_box = merge_aabb(&bounding_box_diagonal1, &bounding_box_diagonal2);
+
+        println!("{}", bounding_box);
+        // let bounding_box = Aabb::new_from_extrema_points(q, q.addv(u).addv(v));
+
+        let n = cross_product(u, v);
         let normal = n.unit();
         let d: f64 = dot_product(normal, q);
 
@@ -68,14 +75,10 @@ impl Quad {
 
 impl Hittable for Quad {
     fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord> {
-        println!("HITTT");
-
         let nd = dot_product(self.normal, ray.get_direction());
         if nd.abs() < 1e-8_f64 {
             return None;
         }
-
-        println!("Not parallel");
 
         let t = (self.d - dot_product(self.normal, ray.get_origin())) / nd;
         if !interval.contains(t) {
@@ -88,8 +91,6 @@ impl Hittable for Quad {
         let hit_vector = intersection.subv(self.q);
         let alpha: f64 = dot_product(self.w, cross_product(hit_vector, self.v));
         let beta: f64 = dot_product(self.w, cross_product(self.u, hit_vector));
-
-        println!("Checking interior");
 
         if Self::is_interior(alpha, beta) {
             Some(HitRecord::new(

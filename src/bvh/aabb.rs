@@ -5,6 +5,10 @@ use crate::{
     utils::interval::{EMPTY_INTERVAL, Interval, merge_interval},
     vector::Point,
 };
+use core::{
+    f64,
+    fmt::{Display, Formatter, Result},
+};
 
 #[derive(Clone, Copy)]
 pub struct Aabb {
@@ -26,23 +30,9 @@ impl Aabb {
         let (ax, ay, az) = a.get_point();
         let (bx, by, bz) = b.get_point();
 
-        let x = if ax <= bx {
-            Interval::new(ax, bx)
-        } else {
-            Interval::new(bx, ax)
-        };
-
-        let y = if ay <= by {
-            Interval::new(ay, by)
-        } else {
-            Interval::new(by, ay)
-        };
-
-        let z = if az <= bz {
-            Interval::new(az, bz)
-        } else {
-            Interval::new(bz, az)
-        };
+        let x = Interval::new(f64::min(ax, bx), f64::max(ax, bx));
+        let y = Interval::new(f64::min(ay, by), f64::max(ay, by));
+        let z = Interval::new(f64::min(az, bz), f64::max(az, bz));
 
         Aabb {
             x: Self::pad_axis(&x),
@@ -62,19 +52,19 @@ impl Aabb {
 
         for axis in 0..3 {
             let cur_axis_interval = self.get_axis_interval(axis);
-            let inv_ray_direction = 1.0 / ray_direction.get_point_by_axis(axis);
-
             let (min, max) = cur_axis_interval.get_min_max();
+
+            let inv_ray_direction = 1.0 / ray_direction.get_point_by_axis(axis);
 
             let t0 = (min - ray_origin.get_point_by_axis(axis)) * inv_ray_direction;
             let t1 = (max - ray_origin.get_point_by_axis(axis)) * inv_ray_direction;
 
             if t0 < t1 {
-                ray_t_min = ray_t_min.max(t0);
-                ray_t_max = ray_t_max.min(t1);
+                ray_t_min = f64::max(ray_t_min, t0);
+                ray_t_max = f64::min(ray_t_max, t1);
             } else {
-                ray_t_min = ray_t_min.max(t1);
-                ray_t_max = ray_t_max.min(t0);
+                ray_t_min = f64::max(ray_t_min, t1);
+                ray_t_max = f64::min(ray_t_max, t0);
             }
 
             if ray_t_max <= ray_t_min {
@@ -143,5 +133,15 @@ pub fn merge_aabb(a: &Aabb, b: &Aabb) -> Aabb {
         x: merge_interval(ax, bx),
         y: merge_interval(ay, by),
         z: merge_interval(az, bz),
+    }
+}
+
+impl Display for Aabb {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "Aabb with:\nx-axis: {}\ny-axis: {}\nz-axis: {}",
+            self.x, self.y, self.z
+        )
     }
 }
