@@ -26,47 +26,9 @@ impl Rotation {
         y_rotation: f64,
         z_rotation: f64,
     ) -> Rotation {
-        let radians = degrees_to_radians(y_rotation);
-        let sin_theta = radians.sin();
-        let cos_theta = radians.cos();
-
-        let hittable_bounding_box = hittable.get_aabb();
-        let (x_min, x_max) = hittable_bounding_box.get_axis_interval(0).get_min_max();
-        let (y_min, y_max) = hittable_bounding_box.get_axis_interval(1).get_min_max();
-        let (z_min, z_max) = hittable_bounding_box.get_axis_interval(2).get_min_max();
-
-        let mut min_x = F_INF;
-        let mut min_y = F_INF;
-        let mut min_z = F_INF;
-        let mut max_x = -F_INF;
-        let mut max_y = -F_INF;
-        let mut max_z = -F_INF;
-
-        for i in 0..2 {
-            for j in 0..2 {
-                for k in 0..2 {
-                    let x = i as f64 * x_max + (1 - i) as f64 * x_min;
-                    let y = j as f64 * y_max + (1 - j) as f64 * y_min;
-                    let z = k as f64 * z_max + (1 - k) as f64 * z_min;
-
-                    let new_x = cos_theta * x + sin_theta * z;
-                    let new_z = -sin_theta * x + cos_theta * z;
-
-                    min_x = f64::min(min_x, new_x);
-                    min_y = f64::min(min_y, y);
-                    min_z = f64::min(min_z, new_z);
-
-                    max_x = f64::max(max_x, new_x);
-                    max_y = f64::max(max_y, y);
-                    max_z = f64::max(max_z, new_z);
-                }
-            }
-        }
-
-        let bounding_box = Aabb::new_from_extrema_points(
-            Point::new(min_x, min_y, min_z),
-            Point::new(max_x, max_y, max_z),
-        );
+        let bounding_box = hittable
+            .get_aabb()
+            .rotate(x_rotation, y_rotation, z_rotation);
 
         Rotation {
             hittable,

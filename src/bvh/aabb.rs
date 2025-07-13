@@ -2,7 +2,11 @@
 
 use crate::{
     ray::Ray,
-    utils::interval::{EMPTY_INTERVAL, Interval, merge_interval},
+    utils::{
+        constants::F_INF,
+        functions::degrees_to_radians,
+        interval::{EMPTY_INTERVAL, Interval, merge_interval},
+    },
     vector::{Point, Vector},
 };
 use core::{
@@ -84,6 +88,49 @@ impl Aabb {
 
         // Pad if needed, unlikely but just in case
         Aabb::new_from_interval(x, y, z)
+    }
+
+    pub fn rotate(&self, x_rotation: f64, y_rotation: f64, z_rotation: f64) -> Aabb {
+        let radians = degrees_to_radians(y_rotation);
+        let sin_theta = radians.sin();
+        let cos_theta = radians.cos();
+
+        let (x_min, x_max) = self.x.get_min_max();
+        let (y_min, y_max) = self.y.get_min_max();
+        let (z_min, z_max) = self.z.get_min_max();
+
+        let mut min_x = F_INF;
+        let mut min_y = F_INF;
+        let mut min_z = F_INF;
+        let mut max_x = -F_INF;
+        let mut max_y = -F_INF;
+        let mut max_z = -F_INF;
+
+        for i in 0..2 {
+            for j in 0..2 {
+                for k in 0..2 {
+                    let x = i as f64 * x_max + (1 - i) as f64 * x_min;
+                    let y = j as f64 * y_max + (1 - j) as f64 * y_min;
+                    let z = k as f64 * z_max + (1 - k) as f64 * z_min;
+
+                    let new_x = cos_theta * x + sin_theta * z;
+                    let new_z = -sin_theta * x + cos_theta * z;
+
+                    min_x = f64::min(min_x, new_x);
+                    min_y = f64::min(min_y, y);
+                    min_z = f64::min(min_z, new_z);
+
+                    max_x = f64::max(max_x, new_x);
+                    max_y = f64::max(max_y, y);
+                    max_z = f64::max(max_z, new_z);
+                }
+            }
+        }
+
+        Aabb::new_from_extrema_points(
+            Point::new(min_x, min_y, min_z),
+            Point::new(max_x, max_y, max_z),
+        )
     }
 
     pub fn get_axis_interval(&self, axis: i8) -> Interval {
