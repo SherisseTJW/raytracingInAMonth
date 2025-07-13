@@ -2,12 +2,16 @@ use std::sync::Arc;
 
 use crate::{
     materials::Materials,
-    objects::{hittable::HittableList, quad::Quad},
+    objects::{
+        hittable::{Hittable, HittableList},
+        quad::Quad,
+    },
+    transformation::{rotation::Rotation, translation::Translation},
     vector::{Point, Vector},
 };
 
 pub struct Cube {
-    sides: Vec<Quad>,
+    sides: HittableList,
 }
 
 impl Cube {
@@ -26,66 +30,95 @@ impl Cube {
         let dy = Vector::new(0.0, max_y - min_y, 0.0);
         let dz = Vector::new(0.0, 0.0, max_z - min_z);
 
-        let mut sides = vec![];
+        let mut sides = HittableList::new();
 
         // Front
-        sides.push(Quad::new(
+        sides.add_hittable(Arc::new(Quad::new(
             Point::new(min_x, min_y, max_z),
             dx,
             dy,
             material.clone(),
-        ));
+        )) as Arc<dyn Hittable>);
 
         // Right
-        sides.push(Quad::new(
+        sides.add_hittable(Arc::new(Quad::new(
             Point::new(max_x, min_y, max_z),
             dz.negate(),
             dy,
             material.clone(),
-        ));
+        )) as Arc<dyn Hittable>);
 
         // Back
-        sides.push(Quad::new(
+        sides.add_hittable(Arc::new(Quad::new(
             Point::new(max_x, min_y, min_z),
             dx.negate(),
             dy,
             material.clone(),
-        ));
+        )) as Arc<dyn Hittable>);
 
         // Left
-        sides.push(Quad::new(
+        sides.add_hittable(Arc::new(Quad::new(
             Point::new(min_x, min_y, min_z),
             dz,
             dy,
             material.clone(),
-        ));
+        )) as Arc<dyn Hittable>);
 
         // Top
-        sides.push(Quad::new(
+        sides.add_hittable(Arc::new(Quad::new(
             Point::new(min_x, max_y, max_z),
             dx,
             dz.negate(),
             material.clone(),
-        ));
+        )) as Arc<dyn Hittable>);
 
         // Bottom
-        sides.push(Quad::new(
+        sides.add_hittable(Arc::new(Quad::new(
             Point::new(min_x, min_y, min_z),
             dx,
             dz,
             material.clone(),
-        ));
+        )) as Arc<dyn Hittable>);
 
         Cube { sides }
     }
 
+    pub fn translate(&mut self, offset: Vector) {
+        let translated = Translation::new(Arc::new(self.sides.clone()), offset);
+        let mut hittable_list = HittableList::new();
+        hittable_list.add_hittable(Arc::new(translated));
+        self.sides = hittable_list;
+        // for i in 0..self.sides.len() {
+        //     let translated_side = Translation::new(self.sides[i].clone(), offset);
+        //     self.sides[i] = Arc::new(translated_side);
+        // }
+    }
+
+    pub fn rotate(&mut self, x_rotation: f64, y_rotation: f64, z_rotation: f64) {
+        let rotated = Rotation::new(
+            Arc::new(self.sides.clone()),
+            x_rotation,
+            y_rotation,
+            z_rotation,
+        );
+        let mut hittable_list = HittableList::new();
+        hittable_list.add_hittable(Arc::new(rotated));
+        self.sides = hittable_list;
+        // for i in 0..self.sides.len() {
+        //     let rotated_side =
+        //         Rotation::new(self.sides[i].clone(), x_rotation, y_rotation, z_rotation);
+        //     self.sides[i] = Arc::new(rotated_side);
+        // }
+    }
+
     pub fn to_hittable_list(self) -> HittableList {
-        let mut hittable_list: HittableList = HittableList::new();
-
-        for side in self.sides {
-            hittable_list.add_hittable(Arc::new(side));
-        }
-
-        hittable_list
+        self.sides
+        // let mut hittable_list: HittableList = HittableList::new();
+        //
+        // for side in self.sides {
+        //     hittable_list.add_hittable(side);
+        // }
+        //
+        // hittable_list
     }
 }

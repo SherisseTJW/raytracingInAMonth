@@ -8,6 +8,7 @@ use crate::{
     objects::{cube::Cube, hittable::HittableList, quad::Quad},
     scene::scene::Scene,
     texture::solid_color::SolidColorTexture,
+    transformation::{rotation::Rotation, translation::Translation},
     vector::{Color, Point, Vector},
 };
 
@@ -62,16 +63,21 @@ pub fn cornell_box_scene() -> Scene {
         light_material,
     );
 
-    let box_1: Cube = Cube::new(
-        Point::new(130.0, 0.0, 65.0),
-        Point::new(295.0, 165.0, 230.0),
+    let mut box_1: Cube = Cube::new(
+        Point::new(0.0, 0.0, 0.0),
+        Point::new(165.0, 330.0, 165.0),
         white_material.clone(),
     );
-    let box_2: Cube = Cube::new(
-        Point::new(265.0, 0.0, 295.0),
-        Point::new(430.0, 330.0, 460.0),
+    box_1.rotate(0.0, 15.0, 0.0);
+    box_1.translate(Vector::new(265.0, 0.0, 295.0));
+
+    let mut box_2: Cube = Cube::new(
+        Point::new(0.0, 0.0, 0.0),
+        Point::new(165.0, 165.0, 165.0),
         white_material.clone(),
     );
+    box_2.rotate(0.0, -18.0, 0.0);
+    box_2.translate(Vector::new(130.0, 0.0, 65.0));
 
     let mut hittable_list: HittableList = HittableList::new();
     hittable_list.add_hittable(Arc::new(top));

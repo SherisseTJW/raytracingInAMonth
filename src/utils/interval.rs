@@ -47,6 +47,11 @@ impl Interval {
         }
     }
 
+    pub fn offset(&mut self, offset: f64) {
+        self.min + offset;
+        self.max + offset;
+    }
+
     pub const fn get_empty_interval() -> Interval {
         Interval {
             min: F_INF,

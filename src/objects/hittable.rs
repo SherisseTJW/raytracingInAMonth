@@ -81,6 +81,27 @@ impl HitRecord {
     pub fn get_texture_coordinates(&self) -> (f64, f64) {
         (self.u, self.v)
     }
+
+    pub fn translate(&mut self, offset: Vector) {
+        self.point.addv(offset);
+    }
+
+    pub fn rotate(&mut self, sin_theta: f64, cos_theta: f64) {
+        let (x_point, y_point, z_point) = self.point.get_point();
+        let (x_normal, y_normal, z_normal) = self.normal.get_point();
+
+        self.point = Point::new(
+            (x_point * cos_theta) + (z_point * sin_theta),
+            y_point,
+            (x_point * -sin_theta) + (z_point * cos_theta),
+        );
+
+        self.normal = Vector::new(
+            (x_normal * cos_theta) + (z_normal * sin_theta),
+            y_normal,
+            (x_normal * -sin_theta) + (z_normal * cos_theta),
+        );
+    }
 }
 
 #[derive(Clone)]

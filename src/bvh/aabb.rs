@@ -3,7 +3,7 @@
 use crate::{
     ray::Ray,
     utils::interval::{EMPTY_INTERVAL, Interval, merge_interval},
-    vector::Point,
+    vector::{Point, Vector},
 };
 use core::{
     f64,
@@ -73,6 +73,14 @@ impl Aabb {
         }
 
         Some(Interval::new(ray_t_min, ray_t_max))
+    }
+
+    pub fn translate(&mut self, offset: Vector) {
+        let (x, y, z) = offset.get_point();
+
+        self.x.offset(x);
+        self.y.offset(y);
+        self.z.offset(z);
     }
 
     pub fn get_axis_interval(&self, axis: i8) -> Interval {
