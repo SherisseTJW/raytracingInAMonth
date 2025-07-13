@@ -81,7 +81,7 @@ fn main() {
     // let simple_light_scene = simple_light_scene();
     // simple_light_scene.render();
 
-    // NOTE: Cornell Box Scene - Empty for now..
+    // NOTE: Cornell Box Scene
     let cornell_box_scene = cornell_box_scene();
     cornell_box_scene.render();
 }

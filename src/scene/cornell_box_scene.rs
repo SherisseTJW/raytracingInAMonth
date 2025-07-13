@@ -1,4 +1,4 @@
-// NOTE: Cornell Box Scene - Empty for now..
+// NOTE: Cornell Box Scene
 
 use std::sync::Arc;
 
