@@ -5,7 +5,7 @@ use std::sync::Arc;
 use crate::{
     camera::{self, Camera},
     materials::{Materials, diffuse_light::DiffuseLightMaterial, lambertian::LambertianMaterial},
-    objects::{hittable::HittableList, quad::Quad},
+    objects::{cube::Cube, hittable::HittableList, quad::Quad},
     scene::scene::Scene,
     texture::solid_color::SolidColorTexture,
     vector::{Color, Point, Vector},
@@ -62,6 +62,17 @@ pub fn cornell_box_scene() -> Scene {
         light_material,
     );
 
+    let box_1: Cube = Cube::new(
+        Point::new(130.0, 0.0, 65.0),
+        Point::new(295.0, 165.0, 230.0),
+        white_material.clone(),
+    );
+    let box_2: Cube = Cube::new(
+        Point::new(265.0, 0.0, 295.0),
+        Point::new(430.0, 330.0, 460.0),
+        white_material.clone(),
+    );
+
     let mut hittable_list: HittableList = HittableList::new();
     hittable_list.add_hittable(Arc::new(top));
     hittable_list.add_hittable(Arc::new(back));
@@ -69,6 +80,8 @@ pub fn cornell_box_scene() -> Scene {
     hittable_list.add_hittable(Arc::new(left));
     hittable_list.add_hittable(Arc::new(right));
     hittable_list.add_hittable(Arc::new(light_source));
+    hittable_list.add_hittable_list(box_1.to_hittable_list());
+    hittable_list.add_hittable_list(box_2.to_hittable_list());
 
     let mut camera = Camera::default();
     camera = camera.override_image_specs(1.0, 600);

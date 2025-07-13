@@ -105,6 +105,14 @@ impl HittableList {
         self.hittable_list.push(hittable);
     }
 
+    pub fn add_hittable_list(&mut self, hittable_list: HittableList) {
+        let new_hittables = hittable_list.get_hittables();
+
+        for hittable in new_hittables {
+            self.add_hittable(hittable);
+        }
+    }
+
     pub fn get_num_hittables(&self) -> usize {
         self.hittable_list.len()
     }
