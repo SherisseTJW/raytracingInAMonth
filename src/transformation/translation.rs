@@ -17,8 +17,7 @@ pub struct Translation {
 
 impl Translation {
     pub fn new(hittable: Arc<dyn Hittable>, offset: Vector) -> Translation {
-        let mut bounding_box = hittable.get_aabb();
-        bounding_box.translate(offset);
+        let bounding_box = hittable.get_aabb().translate(offset);
 
         Translation {
             hittable,

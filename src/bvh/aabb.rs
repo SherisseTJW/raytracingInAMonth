@@ -75,12 +75,15 @@ impl Aabb {
         Some(Interval::new(ray_t_min, ray_t_max))
     }
 
-    pub fn translate(&mut self, offset: Vector) {
-        let (x, y, z) = offset.get_point();
+    pub fn translate(&self, offset: Vector) -> Aabb {
+        let (x_offset, y_offset, z_offset) = offset.get_point();
 
-        self.x.offset(x);
-        self.y.offset(y);
-        self.z.offset(z);
+        let x = self.x.offset(x_offset);
+        let y = self.y.offset(y_offset);
+        let z = self.z.offset(z_offset);
+
+        // Pad if needed, unlikely but just in case
+        Aabb::new_from_interval(x, y, z)
     }
 
     pub fn get_axis_interval(&self, axis: i8) -> Interval {
