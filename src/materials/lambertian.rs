@@ -2,7 +2,7 @@ use crate::{
     objects::hittable::HitRecord,
     ray::Ray,
     texture::{solid_color::SolidColorTexture, texture::Texture},
-    vector::{Color, Vector, get_random_unit_vector_on_hemisphere},
+    vector::{Color, Vector, get_random_unit_vector, get_random_unit_vector_on_hemisphere},
 };
 use std::{fmt::Display, sync::Arc};
 
@@ -22,8 +22,7 @@ impl LambertianMaterial {
 impl Scatterable for LambertianMaterial {
     fn scatter(&self, ray: Ray, hit_record: HitRecord) -> Option<ScatterRecord> {
         let surface_normal_vec = hit_record.get_normal();
-        let scatter_ray_direction: Vector =
-            get_random_unit_vector_on_hemisphere(surface_normal_vec).addv(surface_normal_vec);
+        let scatter_ray_direction: Vector = get_random_unit_vector().addv(surface_normal_vec);
 
         let scatter_ray = if scatter_ray_direction.near_zero() {
             Ray::new(
