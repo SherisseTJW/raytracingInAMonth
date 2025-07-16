@@ -1,4 +1,4 @@
-// NOTE: Final Render Scene 1 (From Ray Tracing in a Weekend)
+// NOTE: Final Render Scene (From Ray Tracing in a Weekend)
 
 use std::sync::Arc;
 
@@ -15,7 +15,7 @@ use crate::{
     vector::{Color, Point, Vector, get_random_unit_vector},
 };
 
-pub fn final_render_1_scene() -> Scene {
+pub fn weekend_scene() -> Scene {
     let mut hittable_list: HittableList = HittableList::new();
 
     let ground_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(

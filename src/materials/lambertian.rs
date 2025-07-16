@@ -22,21 +22,17 @@ impl LambertianMaterial {
 impl Scatterable for LambertianMaterial {
     fn scatter(&self, ray: Ray, hit_record: HitRecord) -> Option<ScatterRecord> {
         let surface_normal_vec = hit_record.get_normal();
-        let scatter_ray_direction: Vector = get_random_unit_vector().addv(surface_normal_vec);
+        let mut scatter_ray_direction: Vector = get_random_unit_vector().addv(surface_normal_vec);
 
-        let scatter_ray = if scatter_ray_direction.near_zero() {
-            Ray::new(
-                hit_record.get_point(),
-                surface_normal_vec,
-                Some(ray.get_time()),
-            )
-        } else {
-            Ray::new(
-                hit_record.get_point(),
-                scatter_ray_direction,
-                Some(ray.get_time()),
-            )
-        };
+        if scatter_ray_direction.near_zero() {
+            scatter_ray_direction = surface_normal_vec;
+        }
+
+        let scatter_ray = Ray::new(
+            hit_record.get_point(),
+            scatter_ray_direction,
+            Some(ray.get_time()),
+        );
 
         let (u, v) = hit_record.get_texture_coordinates();
         Some(ScatterRecord::new(

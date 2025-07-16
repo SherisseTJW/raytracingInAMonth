@@ -166,10 +166,10 @@ pub fn get_random_unit_vector() -> Vector {
             random_double_in_range(-1.0, 1.0),
             random_double_in_range(-1.0, 1.0),
         );
-        // let cur_vector = self.get_random_vector(-1.0, 1.0);
+
         let length_squared = cur_vector.get_length_squared();
 
-        if length_squared <= 1.0 && length_squared > 1e-160 {
+        if length_squared <= 1.0 && length_squared > 1e-160_f64 {
             break cur_vector.scale(1.0 / length_squared.sqrt());
         }
     }

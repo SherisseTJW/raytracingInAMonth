@@ -43,17 +43,20 @@ pub fn simple_light_scene() -> Scene {
     let mut hittable_list: HittableList = HittableList::new();
     hittable_list.add_hittable(Arc::new(ground));
     hittable_list.add_hittable(Arc::new(centre));
-    // hittable_list.add_hittable(Arc::new(side_light_source));
-    hittable_list.add_hittable(Arc::new(top_light_source));
+    hittable_list.add_hittable(Arc::new(side_light_source));
+    // hittable_list.add_hittable(Arc::new(top_light_source));
 
     let mut camera = Camera::default();
+    let look_from = Point::new(26.0, 3.0, 6.0);
+    let look_at = Point::new(0.0, 2.0, 0.0);
+
     camera = camera.override_camera_pos(
-        Point::new(26.0, 3.0, 6.0),
-        Point::new(0.0, 2.0, 0.0),
+        look_from,
+        look_at,
         Vector::new(0.0, 1.0, 0.0),
         20.0,
         0.0,
-        2.0,
+        look_from.subv(look_at).get_length(),
     );
     camera.set_background(Color::new(0.0, 0.0, 0.0));
     Scene::new(hittable_list, camera)

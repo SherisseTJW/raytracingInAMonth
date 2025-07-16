@@ -9,7 +9,7 @@ use crate::{
 };
 
 // NOTE: For now, only y-rotation as in the book is supported
-// TODO: Supprt the other rotations
+// TODO: Support the other rotations
 #[derive(Clone)]
 pub struct Rotation {
     hittable: Arc<dyn Hittable>,

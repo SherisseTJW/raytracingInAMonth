@@ -22,16 +22,17 @@ use vector::{Point, Vector};
 use crate::{
     bvh::bvh::BvhNode,
     scene::{
-        basic_light_scene::{self, simple_light_scene},
-        basic_scene::{self, basic_scene},
-        camera_fov_scene::{self, camera_fov_scene},
+        basic_light_scene::simple_light_scene,
+        basic_scene::basic_scene,
+        camera_fov_scene::camera_fov_scene,
         checker_ground_scene::checker_scene,
-        cornell_box_scene::{self, cornell_box_scene},
+        cornell_box_scene::cornell_box_scene,
         earth_scene::earth_scene,
-        final_render_1::{self, final_render_1_scene},
-        perlin_earth_scene::{self, perlin_earth_scene},
-        perlin_scene::{self, perlin_scene},
+        perlin_earth_scene::perlin_earth_scene,
+        perlin_scene::perlin_scene,
         quad_scene::quad_scene,
+        week_render::week_scene,
+        weekend_render::{self, weekend_scene},
     },
     texture::{
         checker::CheckerTexture, image::ImageTexture, perlin_noise, solid_color::SolidColorTexture,
@@ -54,8 +55,8 @@ fn main() {
     // camera_fov_scene.render()
 
     // NOTE: Final Render Scene 1 (From Ray Tracing in a Weekend)
-    // let final_render_1 = final_render_1_scene();
-    // final_render_1.render();
+    // let weekend_render = weekend_scene();
+    // weekend_render.render();
 
     // NOTE: Final Render Scene 1 (From Ray Tracing in a Weekend)
     // but with a Checker Texture on the ground
@@ -79,10 +80,14 @@ fn main() {
     // perlin_earth.render();
 
     // NOTE: Simple Light Scene requiring a diffuse light
-    // let simple_light_scene = simple_light_scene();
-    // simple_light_scene.render();
+    let simple_light_scene = simple_light_scene();
+    simple_light_scene.render();
 
     // NOTE: Cornell Box Scene
-    let cornell_box_scene = cornell_box_scene();
-    cornell_box_scene.render();
+    // let cornell_box_scene = cornell_box_scene();
+    // cornell_box_scene.render();
+
+    // NOTE: Final Render Scene (From Ray Tracing, the Next Week)
+    // let week_render = week_scene();
+    // week_render.render();
 }

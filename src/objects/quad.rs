@@ -50,16 +50,6 @@ impl Quad {
             bounding_box,
         }
     }
-
-    fn is_interior(alpha: f64, beta: f64) -> bool {
-        let unit_interval = Interval::new(0.0, 1.0);
-
-        if unit_interval.contains(alpha) && unit_interval.contains(beta) {
-            true
-        } else {
-            false
-        }
-    }
 }
 
 impl Hittable for Quad {
@@ -81,7 +71,8 @@ impl Hittable for Quad {
         let alpha: f64 = dot_product(self.w, cross_product(hit_vector, self.v));
         let beta: f64 = dot_product(self.w, cross_product(self.u, hit_vector));
 
-        if Self::is_interior(alpha, beta) {
+        let unit_interval = Interval::new(0.0, 1.0);
+        if unit_interval.contains(alpha) && unit_interval.contains(beta) {
             Some(HitRecord::new(
                 intersection,
                 self.normal,

@@ -299,11 +299,14 @@ impl Camera {
             .addv(self.pixel_delta_u.scale(j as f64 + offset_x))
             .addv(self.pixel_delta_v.scale(i as f64 + offset_y));
 
-        let ray_origin = if self.defocus_angle <= 0.0 {
-            self.centre
-        } else {
-            self.defocus_disk_sample()
-        };
+        let ray_origin = self.centre;
+
+        // NOTE: For defocus stuff
+        // let ray_origin = if self.defocus_angle <= 0.0 {
+        //     self.centre
+        // } else {
+        //     self.defocus_disk_sample()
+        // };
 
         let ray_direction = sample_pixel_centre.subv(ray_origin);
         let ray_time = random_double();
@@ -326,7 +329,7 @@ impl Camera {
 
     fn ray_color(&self, ray: Ray, world: &BvhNode, depth: u32) -> Color {
         if depth == 0 {
-            Color::new(0.0, 0.0, 0.0)
+            self.background
         } else {
             let world_interval: Interval = Interval::new(0.001, F_INF);
             let hit_record = world.hit(&ray, &world_interval);
@@ -338,9 +341,8 @@ impl Camera {
                     let hit_point = hit.get_point();
 
                     let emission_color = material.emit(u, v, hit_point);
-                    let scatter_record: Option<ScatterRecord> = material.scatter(ray, hit);
 
-                    match scatter_record {
+                    match material.scatter(ray, hit) {
                         Some(scatter) => self
                             .ray_color(scatter.get_ray(), world, depth - 1)
                             .multiply(scatter.get_attenuation())
@@ -375,7 +377,7 @@ impl Default for Camera {
         let height: f64 = f64::tan(theta_rad / 2.0);
 
         let defocus_angle = 0.0;
-        let focus_dist = 2.0;
+        let focus_dist = 10.0;
 
         let defocus_radius: f64 = focus_dist * f64::tan(degrees_to_radians(defocus_angle / 2.0));
         let defocus_disk_u: Vector = u.scale(defocus_radius);

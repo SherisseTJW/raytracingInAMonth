@@ -88,10 +88,6 @@ impl Cube {
         let mut hittable_list = HittableList::new();
         hittable_list.add_hittable(Arc::new(translated));
         self.sides = hittable_list;
-        // for i in 0..self.sides.len() {
-        //     let translated_side = Translation::new(self.sides[i].clone(), offset);
-        //     self.sides[i] = Arc::new(translated_side);
-        // }
     }
 
     pub fn rotate(&mut self, x_rotation: f64, y_rotation: f64, z_rotation: f64) {
@@ -104,21 +100,9 @@ impl Cube {
         let mut hittable_list = HittableList::new();
         hittable_list.add_hittable(Arc::new(rotated));
         self.sides = hittable_list;
-        // for i in 0..self.sides.len() {
-        //     let rotated_side =
-        //         Rotation::new(self.sides[i].clone(), x_rotation, y_rotation, z_rotation);
-        //     self.sides[i] = Arc::new(rotated_side);
-        // }
     }
 
     pub fn to_hittable_list(self) -> HittableList {
         self.sides
-        // let mut hittable_list: HittableList = HittableList::new();
-        //
-        // for side in self.sides {
-        //     hittable_list.add_hittable(side);
-        // }
-        //
-        // hittable_list
     }
 }

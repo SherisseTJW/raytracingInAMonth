@@ -66,16 +66,19 @@ pub fn quad_scene() -> Scene {
     hittable_list.add_hittable(Arc::new(left));
     hittable_list.add_hittable(Arc::new(right));
 
+    let look_from = Point::new(0.0, 0.0, 9.0);
+    let look_at = Point::new(0.0, 0.0, 0.0);
+
     let mut camera = Camera::default();
     camera = camera.override_image_specs(1.0, 400);
     camera = camera.override_sampling_specs(100, 50);
     camera = camera.override_camera_pos(
-        Point::new(0.0, 0.0, 9.0),
-        Point::new(0.0, 0.0, 0.0),
+        look_from,
+        look_at,
         Vector::new(0.0, 1.0, 0.0),
         80.0,
         0.0,
-        2.0,
+        look_from.subv(look_at).get_length(),
     );
 
     Scene::new(hittable_list, camera)
