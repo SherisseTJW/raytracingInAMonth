@@ -65,8 +65,8 @@ impl Hittable for Rotation {
 
         match self.hittable.hit(&new_ray, interval) {
             Some(mut hit) => {
-                hit.rotate(sin_theta, cos_theta);
-                Some(hit)
+                let rotated_hit_record = hit.rotate(sin_theta, cos_theta);
+                Some(rotated_hit_record)
             }
             None => None,
         }
