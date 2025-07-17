@@ -82,8 +82,18 @@ impl HitRecord {
         (self.u, self.v)
     }
 
-    pub fn translate(&mut self, offset: Vector) {
-        self.point.addv(offset);
+    pub fn translate(&self, ray: &Ray, offset: Vector) -> HitRecord {
+        let new_point = self.point.addv(offset);
+
+        HitRecord::new(
+            new_point,
+            self.normal,
+            self.t,
+            ray,
+            self.material.clone(),
+            self.u,
+            self.v,
+        )
     }
 
     pub fn rotate(&self, ray: &Ray, sin_theta: f64, cos_theta: f64) -> HitRecord {

@@ -83,7 +83,6 @@ pub fn cornell_box_scene() -> Scene {
     );
     box_1.rotate(0.0, 15.0, 0.0);
     box_1.translate(Vector::new(265.0, 0.0, 295.0));
-
     let mut box_2: Cube = Cube::new(
         Point::new(0.0, 0.0, 0.0),
         Point::new(165.0, 165.0, 165.0),
@@ -112,8 +111,6 @@ pub fn cornell_box_scene() -> Scene {
         0.0,
         2.0,
     );
-    // FIX: Change sampling size and max_depth back to 200 and 50
-    // (set to 100 and 10 for debugging to speed up)
     camera = camera.override_sampling_specs(200, 50);
     camera.set_background(Color::new(0.0, 0.0, 0.0));
 
