@@ -82,21 +82,21 @@ impl HitRecord {
         (self.u, self.v)
     }
 
-    pub fn translate(&self, offset: Vector) -> HitRecord {
+    pub fn translate(&self, ray: &Ray, offset: Vector) -> HitRecord {
         let new_point = self.point.addv(offset);
 
-        HitRecord {
-            point: new_point,
-            normal: self.normal,
-            t: self.t,
-            front: self.front,
-            material: self.material.clone(),
-            u: self.u,
-            v: self.v,
-        }
+        HitRecord::new(
+            new_point,
+            self.normal,
+            self.t,
+            ray,
+            self.material.clone(),
+            self.u,
+            self.v,
+        )
     }
 
-    pub fn rotate(&self, sin_theta: f64, cos_theta: f64) -> HitRecord {
+    pub fn rotate(&self, ray: &Ray, sin_theta: f64, cos_theta: f64) -> HitRecord {
         let (x_point, y_point, z_point) = self.point.get_point();
         let (x_normal, y_normal, z_normal) = self.normal.get_point();
 
@@ -112,15 +112,15 @@ impl HitRecord {
             (x_normal * -sin_theta) + (z_normal * cos_theta),
         );
 
-        HitRecord {
-            point: new_point,
-            normal: new_normal,
-            t: self.t,
-            front: self.front,
-            material: self.material.clone(),
-            u: self.u,
-            v: self.v,
-        }
+        HitRecord::new(
+            new_point,
+            new_normal,
+            self.t,
+            ray,
+            self.material.clone(),
+            self.u,
+            self.v,
+        )
     }
 }
 

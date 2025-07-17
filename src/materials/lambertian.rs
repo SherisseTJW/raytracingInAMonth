@@ -2,7 +2,7 @@ use crate::{
     objects::hittable::HitRecord,
     ray::Ray,
     texture::{solid_color::SolidColorTexture, texture::Texture},
-    vector::{Color, Vector, get_random_unit_vector, get_random_unit_vector_on_hemisphere},
+    vector::{Color, Vector, get_random_unit_vector},
 };
 use std::{fmt::Display, sync::Arc};
 

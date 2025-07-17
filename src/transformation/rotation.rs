@@ -64,10 +64,7 @@ impl Hittable for Rotation {
         let new_ray = Ray::new(new_origin, new_direction, Some(ray.get_time()));
 
         match self.hittable.hit(&new_ray, interval) {
-            Some(mut hit) => {
-                let rotated_hit_record = hit.rotate(sin_theta, cos_theta);
-                Some(rotated_hit_record)
-            }
+            Some(mut hit) => Some(hit.rotate(&new_ray, sin_theta, cos_theta)),
             None => None,
         }
     }

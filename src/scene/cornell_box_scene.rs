@@ -82,40 +82,32 @@ pub fn cornell_box_scene() -> Scene {
     //     Point::new(430.0, 330.0, 460.0),
     //     white_material.clone(),
     // );
-    // hittable_list.add_hittable_list(box_1.to_hittable_list());
-    // hittable_list.add_hittable_list(box_2.to_hittable_list());
 
-    // NOTE: Rotated boxes (mimics the final sample scene)
-    let box_1 = Cube::new(
-        Point::new(130.0, 0.0, 65.0),
-        Point::new(295.0, 165.0, 230.0),
+    // NOTE: Final, rotated and translated boxes
+    let mut box_1: Cube = Cube::new(
+        Point::new(0.0, 0.0, 0.0),
+        Point::new(165.0, 330.0, 165.0),
         white_material.clone(),
     );
-    let box_2 = Cube::new(
-        Point::new(265.0, 0.0, 295.0),
-        Point::new(430.0, 330.0, 460.0),
+    box_1.rotate(0.0, 15.0, 0.0);
+    box_1.translate(Vector::new(265.0, 0.0, 295.0));
+    let mut box_2: Cube = Cube::new(
+        Point::new(0.0, 0.0, 0.0),
+        Point::new(165.0, 165.0, 165.0),
         white_material.clone(),
     );
-    let rotated_box_1 = box_1.rotate(0.0, 15.0, 0.0);
-    let rotated_box_2 = box_2.rotate(0.0, -18.0, 0.0);
-    hittable_list.add_hittable(Arc::new(rotated_box_1));
-    hittable_list.add_hittable(Arc::new(rotated_box_2));
+    box_2.rotate(0.0, -18.0, 0.0);
+    box_2.translate(Vector::new(130.0, 0.0, 65.0));
 
-    // NOTE: Translated boxes
-    // let box_1: Cube = Cube::new(
-    //     Point::new(0.0, 0.0, 0.0),
-    //     Point::new(165.0, 330.0, 165.0),
-    //     white_material.clone(),
-    // );
-    // let mut box_2: Cube = Cube::new(
-    //     Point::new(0.0, 0.0, 0.0),
-    //     Point::new(165.0, 165.0, 165.0),
-    //     white_material.clone(),
-    // );
-    // let translated_box_1 = box_1.translate(Vector::new(265.0, 0.0, 295.0));
-    // let translated_box_2 = box_2.translate(Vector::new(130.0, 0.0, 65.0));
-    // hittable_list.add_hittable(Arc::new(translated_box_1));
-    // hittable_list.add_hittable(Arc::new(translated_box_2));
+    let mut hittable_list: HittableList = HittableList::new();
+    hittable_list.add_hittable(Arc::new(top));
+    hittable_list.add_hittable(Arc::new(back));
+    hittable_list.add_hittable(Arc::new(bottom));
+    hittable_list.add_hittable(Arc::new(left));
+    hittable_list.add_hittable(Arc::new(right));
+    hittable_list.add_hittable(Arc::new(light_source));
+    hittable_list.add_hittable_list(box_1.to_hittable_list());
+    hittable_list.add_hittable_list(box_2.to_hittable_list());
 
     let mut camera = Camera::default();
     camera = camera.override_image_specs(1.0, 600);
@@ -127,9 +119,7 @@ pub fn cornell_box_scene() -> Scene {
         0.0,
         2.0,
     );
-    // FIX: Change sampling size and max_depth back to 200 and 50
-    // (set to 100 and 10 for debugging to speed up)
-    camera = camera.override_sampling_specs(100, 10);
+    camera = camera.override_sampling_specs(200, 50);
     camera.set_background(Color::new(0.0, 0.0, 0.0));
 
     Scene::new(hittable_list, camera)

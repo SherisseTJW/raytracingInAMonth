@@ -14,6 +14,7 @@ use crate::{
         perlin_noise::{PerlinNoiseEffect, PerlinNoiseTexture},
         solid_color::SolidColorTexture,
     },
+    transformation::rotation::Rotation,
     utils::functions::random_double_in_range,
     vector::{Color, Point, Vector},
 };
@@ -43,8 +44,8 @@ pub fn simple_light_scene() -> Scene {
     let mut hittable_list: HittableList = HittableList::new();
     hittable_list.add_hittable(Arc::new(ground));
     hittable_list.add_hittable(Arc::new(centre));
-    hittable_list.add_hittable(Arc::new(side_light_source));
-    // hittable_list.add_hittable(Arc::new(top_light_source));
+    // hittable_list.add_hittable(Arc::new(side_light_source));
+    hittable_list.add_hittable(Arc::new(top_light_source));
 
     let mut camera = Camera::default();
     let look_from = Point::new(26.0, 3.0, 6.0);

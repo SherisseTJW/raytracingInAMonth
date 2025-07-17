@@ -36,10 +36,7 @@ impl Hittable for Translation {
         );
 
         match self.hittable.hit(&offset_ray, interval) {
-            Some(mut hit) => {
-                let translated_hit_record = hit.translate(self.offset);
-                Some(translated_hit_record)
-            }
+            Some(mut hit) => Some(hit.translate(&offset_ray, self.offset)),
             None => None,
         }
     }
