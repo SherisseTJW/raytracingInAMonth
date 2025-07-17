@@ -38,7 +38,7 @@ impl Cube {
             dx,
             dy,
             material.clone(),
-        )) as Arc<dyn Hittable>);
+        )));
 
         // Right
         sides.add_hittable(Arc::new(Quad::new(
@@ -46,7 +46,7 @@ impl Cube {
             dz.negate(),
             dy,
             material.clone(),
-        )) as Arc<dyn Hittable>);
+        )));
 
         // Back
         sides.add_hittable(Arc::new(Quad::new(
@@ -54,7 +54,7 @@ impl Cube {
             dx.negate(),
             dy,
             material.clone(),
-        )) as Arc<dyn Hittable>);
+        )));
 
         // Left
         sides.add_hittable(Arc::new(Quad::new(
@@ -62,7 +62,7 @@ impl Cube {
             dz,
             dy,
             material.clone(),
-        )) as Arc<dyn Hittable>);
+        )));
 
         // Top
         sides.add_hittable(Arc::new(Quad::new(
@@ -70,7 +70,7 @@ impl Cube {
             dx,
             dz.negate(),
             material.clone(),
-        )) as Arc<dyn Hittable>);
+        )));
 
         // Bottom
         sides.add_hittable(Arc::new(Quad::new(
@@ -78,7 +78,7 @@ impl Cube {
             dx,
             dz,
             material.clone(),
-        )) as Arc<dyn Hittable>);
+        )));
 
         Cube { sides }
     }

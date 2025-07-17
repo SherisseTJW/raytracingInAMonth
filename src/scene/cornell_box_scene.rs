@@ -64,32 +64,33 @@ pub fn cornell_box_scene() -> Scene {
     );
 
     // NOTE: Original, unrotated and untranslated boxes
-    let box_1 = Cube::new(
-        Point::new(130.0, 0.0, 65.0),
-        Point::new(295.0, 165.0, 230.0),
-        white_material.clone(),
-    );
-    let box_2 = Cube::new(
-        Point::new(265.0, 0.0, 295.0),
-        Point::new(430.0, 330.0, 460.0),
-        white_material.clone(),
-    );
+    // let box_1 = Cube::new(
+    //     Point::new(130.0, 0.0, 65.0),
+    //     Point::new(295.0, 165.0, 230.0),
+    //     white_material.clone(),
+    // );
+    // let box_2 = Cube::new(
+    //     Point::new(265.0, 0.0, 295.0),
+    //     Point::new(430.0, 330.0, 460.0),
+    //     white_material.clone(),
+    // );
 
-    // let mut box_1: Cube = Cube::new(
-    //     Point::new(0.0, 0.0, 0.0),
-    //     Point::new(165.0, 330.0, 165.0),
-    //     white_material.clone(),
-    // );
-    // box_1.rotate(0.0, 15.0, 0.0);
-    // box_1.translate(Vector::new(265.0, 0.0, 295.0));
-    //
-    // let mut box_2: Cube = Cube::new(
-    //     Point::new(0.0, 0.0, 0.0),
-    //     Point::new(165.0, 165.0, 165.0),
-    //     white_material.clone(),
-    // );
-    // box_2.rotate(0.0, -18.0, 0.0);
-    // box_2.translate(Vector::new(130.0, 0.0, 65.0));
+    // NOTE: Final, rotated and translated boxes
+    let mut box_1: Cube = Cube::new(
+        Point::new(0.0, 0.0, 0.0),
+        Point::new(165.0, 330.0, 165.0),
+        white_material.clone(),
+    );
+    box_1.rotate(0.0, 15.0, 0.0);
+    box_1.translate(Vector::new(265.0, 0.0, 295.0));
+
+    let mut box_2: Cube = Cube::new(
+        Point::new(0.0, 0.0, 0.0),
+        Point::new(165.0, 165.0, 165.0),
+        white_material.clone(),
+    );
+    box_2.rotate(0.0, -18.0, 0.0);
+    box_2.translate(Vector::new(130.0, 0.0, 65.0));
 
     let mut hittable_list: HittableList = HittableList::new();
     hittable_list.add_hittable(Arc::new(top));
@@ -111,8 +112,9 @@ pub fn cornell_box_scene() -> Scene {
         0.0,
         2.0,
     );
-    // FIX: Change sampling size and max_depth back to 200 and 50 (set to 100 and 20 for debugging to speed up)
-    camera = camera.override_sampling_specs(100, 20);
+    // FIX: Change sampling size and max_depth back to 200 and 50
+    // (set to 100 and 10 for debugging to speed up)
+    camera = camera.override_sampling_specs(200, 50);
     camera.set_background(Color::new(0.0, 0.0, 0.0));
 
     Scene::new(hittable_list, camera)

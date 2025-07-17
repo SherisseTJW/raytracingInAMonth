@@ -124,7 +124,9 @@ pub fn week_scene() -> Scene {
         0.0,
         10.0,
     );
-    camera = camera.override_sampling_specs(10000, 40);
+    // FIX: Change sampling size and max_depth back to 10000 and 40
+    // (set to 100 and 10 for debugging to speed up)
+    camera = camera.override_sampling_specs(100, 10);
     camera.set_background(Color::new(0.0, 0.0, 0.0));
 
     Scene::new(hittable_list, camera)
