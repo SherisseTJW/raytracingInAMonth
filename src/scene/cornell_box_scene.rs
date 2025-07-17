@@ -63,14 +63,6 @@ pub fn cornell_box_scene() -> Scene {
         light_material,
     );
 
-    let mut hittable_list: HittableList = HittableList::new();
-    hittable_list.add_hittable(Arc::new(top));
-    hittable_list.add_hittable(Arc::new(back));
-    hittable_list.add_hittable(Arc::new(bottom));
-    hittable_list.add_hittable(Arc::new(left));
-    hittable_list.add_hittable(Arc::new(right));
-    hittable_list.add_hittable(Arc::new(light_source));
-
     // NOTE: Original, unrotated and untranslated boxes
     // let box_1 = Cube::new(
     //     Point::new(130.0, 0.0, 65.0),
@@ -124,3 +116,4 @@ pub fn cornell_box_scene() -> Scene {
 
     Scene::new(hittable_list, camera)
 }
+

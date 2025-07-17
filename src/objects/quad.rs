@@ -1,4 +1,4 @@
-use std::{sync::Arc, thread::panicking};
+use std::sync::Arc;
 
 use crate::{
     bvh::aabb::{Aabb, merge_aabb},

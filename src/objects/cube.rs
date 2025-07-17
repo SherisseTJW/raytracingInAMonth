@@ -83,17 +83,23 @@ impl Cube {
         Cube { sides }
     }
 
-    pub fn translate(&self, offset: Vector) -> Translation {
-        Translation::new(Arc::new(self.sides.clone()), offset)
+    pub fn translate(&mut self, offset: Vector) {
+        let translated = Translation::new(Arc::new(self.sides.clone()), offset);
+        let mut hittable_list = HittableList::new();
+        hittable_list.add_hittable(Arc::new(translated));
+        self.sides = hittable_list;
     }
 
-    pub fn rotate(&self, x_rotation: f64, y_rotation: f64, z_rotation: f64) -> Rotation {
-        Rotation::new(
+    pub fn rotate(&mut self, x_rotation: f64, y_rotation: f64, z_rotation: f64) {
+        let rotated = Rotation::new(
             Arc::new(self.sides.clone()),
             x_rotation,
             y_rotation,
             z_rotation,
-        )
+        );
+        let mut hittable_list = HittableList::new();
+        hittable_list.add_hittable(Arc::new(rotated));
+        self.sides = hittable_list;
     }
 
     pub fn to_hittable_list(self) -> HittableList {
