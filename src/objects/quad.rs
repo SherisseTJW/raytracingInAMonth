@@ -71,7 +71,7 @@ impl Hittable for Quad {
         let alpha: f64 = dot_product(self.w, cross_product(hit_vector, self.v));
         let beta: f64 = dot_product(self.w, cross_product(self.u, hit_vector));
 
-        let unit_interval = Interval::new(0.0, 1.0);
+        let unit_interval = Interval::new(-1.0, 1.0);
         if unit_interval.contains(alpha) && unit_interval.contains(beta) {
             Some(HitRecord::new(
                 intersection,

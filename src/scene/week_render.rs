@@ -28,18 +28,17 @@ use crate::{
 pub fn week_scene() -> Scene {
     let mut hittable_list: HittableList = HittableList::new();
 
-    // let ground_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
-    //     SolidColorTexture::new_from_rgb(0.48, 0.83, 0.53),
-    // )));
-    //
-    // let boxes_per_side = 20;
+    let ground_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
+        SolidColorTexture::new_from_rgb(0.48, 0.83, 0.53),
+    )));
+
+    // let boxes_per_side = 5;
+    // let w = 100.0;
     // for i in 0..boxes_per_side {
     //     for j in 0..boxes_per_side {
-    //         let w = 100.0;
-    //
-    //         let x0 = -1000.0 + i as f64 * w;
+    //         let x0 = -1000.0 + (i as f64 * w);
     //         let y0 = 0.0;
-    //         let z0 = -1000.0 + j as f64 * w;
+    //         let z0 = -1000.0 + (j as f64 * w);
     //
     //         let x1 = x0 + w;
     //         let y1 = random_double_in_range(1.0, 101.0);
@@ -96,37 +95,39 @@ pub fn week_scene() -> Scene {
     let perlin_sphere = Sphere::new(Point::new(220.0, 280.0, 300.0), 80.0, perlin_material);
     hittable_list.add_hittable(Arc::new(perlin_sphere));
 
-    // let floating_sphere_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
-    //     SolidColorTexture::new_from_rgb(0.73, 0.73, 0.73),
-    // )));
-    //
-    // let mut floating_spheres_list: HittableList = HittableList::new();
-    // for i in 0..1000 {
-    //     let location = Vector::new(
-    //         random_double_in_range(0.0, 165.0),
-    //         random_double_in_range(0.0, 165.0),
-    //         random_double_in_range(0.0, 165.0),
-    //     );
-    //     let cur_sphere = Sphere::new(location, 10.0, floating_sphere_material.clone());
-    //
-    //     floating_spheres_list.add_hittable(Arc::new(cur_sphere));
-    // }
-    // hittable_list.add_hittable_list(floating_spheres_list);
+    let floating_sphere_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
+        SolidColorTexture::new_from_rgb(0.73, 0.73, 0.73),
+    )));
+
+    let mut floating_spheres_list: HittableList = HittableList::new();
+    for i in 0..1000 {
+        let location = Vector::new(
+            random_double_in_range(-100.0, 65.0),
+            random_double_in_range(270.0, 435.0),
+            random_double_in_range(395.0, 460.0),
+        );
+        let cur_sphere = Sphere::new(location, 10.0, floating_sphere_material.clone());
+
+        floating_spheres_list.add_hittable(Arc::new(cur_sphere));
+    }
+    hittable_list.add_hittable_list(floating_spheres_list);
 
     // Camera Settings
     let mut camera = Camera::default();
-    camera = camera.override_image_specs(1.0, 800);
+    // FIX: Change image_width back to 800
+    // (set to 400 for debugging to speed up)
+    camera = camera.override_image_specs(1.0, 400);
     camera = camera.override_camera_pos(
         Point::new(478.0, 278.0, -600.0),
         Point::new(278.0, 278.0, 0.0),
         Vector::new(0.0, 1.0, 0.0),
         40.0,
         0.0,
-        10.0,
+        2.0,
     );
     // FIX: Change sampling size and max_depth back to 10000 and 40
-    // (set to 100 and 10 for debugging to speed up)
-    camera = camera.override_sampling_specs(100, 10);
+    // (set to 250 and 40 for debugging to speed up)
+    camera = camera.override_sampling_specs(250, 40);
     camera.set_background(Color::new(0.0, 0.0, 0.0));
 
     Scene::new(hittable_list, camera)

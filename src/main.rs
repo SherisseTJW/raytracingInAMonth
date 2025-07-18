@@ -89,10 +89,10 @@ fn main() {
     // cornell_box_scene.render();
 
     // NOTE: Cornell Box Scene but with Smoke boxes
-    let cornell_smoke_scene = cornell_smoke_scene();
-    cornell_smoke_scene.render();
+    // let cornell_smoke_scene = cornell_smoke_scene();
+    // cornell_smoke_scene.render();
 
     // NOTE: Final Render Scene (From Ray Tracing, the Next Week)
-    // let week_render = week_scene();
-    // week_render.render();
+    let week_render = week_scene();
+    week_render.render();
 }
