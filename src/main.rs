@@ -27,6 +27,7 @@ use crate::{
         camera_fov_scene::camera_fov_scene,
         checker_ground_scene::checker_scene,
         cornell_box_scene::cornell_box_scene,
+        cornell_smoke_scene::cornell_smoke_scene,
         earth_scene::earth_scene,
         perlin_earth_scene::perlin_earth_scene,
         perlin_scene::perlin_scene,
@@ -84,8 +85,12 @@ fn main() {
     // simple_light_scene.render();
 
     // NOTE: Cornell Box Scene
-    let cornell_box_scene = cornell_box_scene();
-    cornell_box_scene.render();
+    // let cornell_box_scene = cornell_box_scene();
+    // cornell_box_scene.render();
+
+    // NOTE: Cornell Box Scene but with Smoke boxes
+    let cornell_smoke_scene = cornell_smoke_scene();
+    cornell_smoke_scene.render();
 
     // NOTE: Final Render Scene (From Ray Tracing, the Next Week)
     // let week_render = week_scene();

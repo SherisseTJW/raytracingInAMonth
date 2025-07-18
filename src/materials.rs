@@ -1,12 +1,15 @@
 pub mod dielectric;
 pub mod diffuse_light;
 pub mod emission;
+pub mod isotropic;
 pub mod lambertian;
 pub mod metal;
 pub mod scatterable;
 
 use crate::{
-    materials::{diffuse_light::DiffuseLightMaterial, emission::Emission},
+    materials::{
+        diffuse_light::DiffuseLightMaterial, emission::Emission, isotropic::IsotropicMaterial,
+    },
     objects::hittable::HitRecord,
     ray::Ray,
     vector::{Color, Point},
@@ -22,6 +25,7 @@ pub enum Materials {
     Lambertian(LambertianMaterial),
     Metal(MetalMaterial),
     Dielectric(DielectricMaterial),
+    Isotropic(IsotropicMaterial),
     Diffuse(DiffuseLightMaterial),
 }
 
@@ -31,6 +35,7 @@ impl Scatterable for Materials {
             Materials::Lambertian(mat) => mat.scatter(ray, hit_record),
             Materials::Metal(mat) => mat.scatter(ray, hit_record),
             Materials::Dielectric(mat) => mat.scatter(ray, hit_record),
+            Materials::Isotropic(mat) => mat.scatter(ray, hit_record),
             _ => None,
         }
     }
