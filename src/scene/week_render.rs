@@ -32,26 +32,28 @@ pub fn week_scene() -> Scene {
         SolidColorTexture::new_from_rgb(0.48, 0.83, 0.53),
     )));
 
-    // let boxes_per_side = 5;
-    // let w = 100.0;
-    // for i in 0..boxes_per_side {
-    //     for j in 0..boxes_per_side {
-    //         let x0 = -1000.0 + (i as f64 * w);
-    //         let y0 = 0.0;
-    //         let z0 = -1000.0 + (j as f64 * w);
-    //
-    //         let x1 = x0 + w;
-    //         let y1 = random_double_in_range(1.0, 101.0);
-    //         let z1 = z0 + w;
-    //
-    //         let ground_box = Cube::new(
-    //             Point::new(x0, y0, z0),
-    //             Point::new(x1, y1, z1),
-    //             ground_material.clone(),
-    //         );
-    //         hittable_list.add_hittable_list(ground_box.to_hittable_list());
-    //     }
-    // }
+    // NOTE: Somehow the parameters given in the book don't work?
+    // They'll cause the blocks to spawn outside the scene
+    let boxes_per_side = 20;
+    let w = 100.0;
+    for i in 0..boxes_per_side {
+        for j in 0..boxes_per_side {
+            let x0 = -900.0 + (i as f64 * w);
+            let y0 = -100.0;
+            let z0 = 0.0 + (j as f64 * w);
+
+            let x1 = x0 + w;
+            let y1 = random_double_in_range(-50.0, 51.0);
+            let z1 = z0 + w;
+
+            let ground_box = Cube::new(
+                Point::new(x0, y0, z0),
+                Point::new(x1, y1, z1),
+                ground_material.clone(),
+            );
+            hittable_list.add_hittable_list(ground_box.to_hittable_list());
+        }
+    }
 
     let light_material = Materials::Diffuse(DiffuseLightMaterial::new(Arc::new(
         SolidColorTexture::new_from_rgb(7.0, 7.0, 7.0),
@@ -99,24 +101,25 @@ pub fn week_scene() -> Scene {
         SolidColorTexture::new_from_rgb(0.73, 0.73, 0.73),
     )));
 
+    // NOTE: Same thing here...
+    // Somehow the parameters given in the book don't work?
     let mut floating_spheres_list: HittableList = HittableList::new();
     for i in 0..1000 {
         let location = Vector::new(
-            random_double_in_range(-100.0, 65.0),
+            random_double_in_range(-300.0, -165.0),
             random_double_in_range(270.0, 435.0),
-            random_double_in_range(395.0, 460.0),
+            random_double_in_range(395.0, 560.0),
         );
         let cur_sphere = Sphere::new(location, 10.0, floating_sphere_material.clone());
 
         floating_spheres_list.add_hittable(Arc::new(cur_sphere));
     }
-    hittable_list.add_hittable_list(floating_spheres_list);
+    let rotated_spheres = Rotation::new(Arc::new(floating_spheres_list), 0.0, 15.0, 0.0);
+    hittable_list.add_hittable(Arc::new(rotated_spheres));
 
     // Camera Settings
     let mut camera = Camera::default();
-    // FIX: Change image_width back to 800
-    // (set to 400 for debugging to speed up)
-    camera = camera.override_image_specs(1.0, 400);
+    camera = camera.override_image_specs(1.0, 800);
     camera = camera.override_camera_pos(
         Point::new(478.0, 278.0, -600.0),
         Point::new(278.0, 278.0, 0.0),
@@ -127,7 +130,7 @@ pub fn week_scene() -> Scene {
     );
     // FIX: Change sampling size and max_depth back to 10000 and 40
     // (set to 250 and 40 for debugging to speed up)
-    camera = camera.override_sampling_specs(250, 40);
+    camera = camera.override_sampling_specs(10000, 40);
     camera.set_background(Color::new(0.0, 0.0, 0.0));
 
     Scene::new(hittable_list, camera)

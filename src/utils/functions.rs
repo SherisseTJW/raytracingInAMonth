@@ -17,5 +17,5 @@ pub fn random_double() -> f64 {
 
 pub fn random_double_in_range(min: f64, max: f64) -> f64 {
     let mut rng = rand::rng();
-    min + (max - min) * rng.random_range(min..max)
+    rng.gen_range(min..max)
 }
