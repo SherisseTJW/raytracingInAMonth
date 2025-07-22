@@ -7,3 +7,8 @@ Various scenes have been rendered and saved in [images](./images), but the final
 ![Weekend Final Render](./images/final_weekend_render.png)
 
 ![Week Final Render](./images/final_week_render.png)
+
+# Extra Features (TODO)
+
+1. Rotation by $x$ and $z$
+2. Triangle Objects
