@@ -26,7 +26,11 @@ impl Scatterable for MetalMaterial {
         let fuzz_vec = get_random_unit_vector().scale(self.fuzz);
         let fuzzed_ray_direction = reflected_ray_direction.unit().addv(fuzz_vec);
 
-        let scatter_ray = Ray::new(hit_record.get_point(), fuzzed_ray_direction);
+        let scatter_ray = Ray::new(
+            hit_record.get_point(),
+            fuzzed_ray_direction,
+            Some(ray.get_time()),
+        );
 
         Some(ScatterRecord::new(scatter_ray, self.albedo))
     }

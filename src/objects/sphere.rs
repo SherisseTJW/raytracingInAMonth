@@ -1,75 +1,79 @@
+use std::sync::Arc;
 use crate::{
+    bvh::aabb::{merge_aabb, Aabb},
     materials::Materials,
     ray::Ray,
-    utils::interval::Interval,
-    vector::{Point, dot_product},
+    utils::{constants::PI, interval::Interval},
+    vector::{dot_product, Point, Vector},
 };
 
 use super::hittable::{HitRecord, Hittable};
 
+#[derive(Clone)]
 pub struct Sphere {
-    centre: Point,
+    centre: Ray,
     radius: f64,
     material: Materials,
+    bounding_box: Aabb,
 }
 
 impl Sphere {
-    pub fn new(centre: Point, radius: f64, material: Materials) -> Sphere {
+    pub fn new(static_centre: Point, radius: f64, material: Materials) -> Sphere {
+        let centre = Ray::new(static_centre, Vector::new(0.0, 0.0, 0.0), None);
+
+        let radius_vector = Vector::new(radius, radius, radius);
+        let bounding_box = Aabb::new_from_extrema_points(
+            static_centre.subv(radius_vector),
+            static_centre.addv(radius_vector),
+        );
+
         Sphere {
             centre,
             radius,
             material,
+            bounding_box,
         }
     }
 
-    pub fn get_centre(&self) -> Point {
+    pub fn new_moving_sphere(
+        start_centre: Point,
+        end_centre: Point,
+        radius: f64,
+        material: Materials,
+    ) -> Sphere {
+        let centre = Ray::new(start_centre, start_centre.subv(end_centre), None);
+
+        let radius_vector = Vector::new(radius, radius, radius);
+        let start_aabb = Aabb::new_from_extrema_points(
+            centre.at(0.0).subv(radius_vector),
+            centre.at(0.0).addv(radius_vector),
+        );
+        let end_aabb = Aabb::new_from_extrema_points(
+            centre.at(1.0).subv(radius_vector),
+            centre.at(1.0).addv(radius_vector),
+        );
+        let bounding_box = merge_aabb(&start_aabb, &end_aabb);
+
+        Sphere {
+            centre,
+            radius,
+            material,
+            bounding_box,
+        }
+    }
+
+    pub fn get_centre(&self) -> Ray {
         self.centre
-    }
-
-    // pub fn hit(&self, ray: &Ray) -> bool {
-    //     let ray_direction = ray.get_direction();
-    //     let ray_origin = ray.get_origin();
-    //
-    //     let oc = self.centre.subv(ray_origin);
-    //
-    //     let a = dot_product(ray_direction, ray_direction);
-    //     let b = -2.0 * dot_product(ray_direction, oc);
-    //     let c = dot_product(oc, oc) - (self.radius * self.radius);
-    //
-    //     let discriminant = (b * b) - (4.0 * a * c);
-    //
-    //     // Either 1 real root or 2 real roots
-    //     // i.e., hit at least 1 point on the surface of the sphere
-    //     discriminant >= 0.0
-    // }
-
-    pub fn hit_at(&self, ray: &Ray) -> f64 {
-        let ray_direction = ray.get_direction();
-        let ray_origin = ray.get_origin();
-
-        let oc = self.centre.subv(ray_origin);
-
-        // NOTE: Using simplified intersection formula
-        let a = dot_product(ray_direction, ray_direction);
-        let h = dot_product(ray_direction, oc);
-        let c = dot_product(oc, oc) - (self.radius * self.radius);
-
-        let h_discriminant = (h * h) - (a * c);
-
-        if h_discriminant < 0.0 {
-            -1.0
-        } else {
-            (h - h_discriminant.sqrt()) / a
-        }
     }
 }
 
 impl Hittable for Sphere {
     fn hit(&self, ray: &Ray, interval: &Interval) -> Option<HitRecord> {
+        let current_centre = self.centre.at(ray.get_time());
         let ray_direction = ray.get_direction();
         let ray_origin = ray.get_origin();
 
-        let oc = self.centre.subv(ray_origin);
+        let oc = current_centre.subv(ray_origin);
 
         // NOTE: Using simplified intersection formula
         let a = dot_product(ray_direction, ray_direction);
@@ -88,30 +92,57 @@ impl Hittable for Sphere {
 
             if interval.surrounds(neg_root) {
                 let surface_vec = ray.at(neg_root);
-                let surface_normal_vec = surface_vec.subv(self.get_centre()).unit();
+                let surface_normal_vec = surface_vec.subv(current_centre).unit();
+                let (u, v) = get_sphere_coordinates(surface_normal_vec);
 
+                // NOTE: Need to actually give the u, v point
                 Some(HitRecord::new(
                     surface_vec,
                     surface_normal_vec,
                     neg_root,
                     ray,
-                    self.material,
+                    self.material.clone(),
+                    u,
+                    v,
                 ))
             } else if interval.surrounds(pos_root) {
                 let surface_vec = ray.at(pos_root);
-                let surface_normal_vec = surface_vec.subv(self.get_centre()).unit();
-                // let (x, y, z) = surface_normal_vec.get_point();
+                let surface_normal_vec = surface_vec.subv(current_centre).unit();
+                let (u, v) = get_sphere_coordinates(surface_normal_vec);
 
+                // NOTE: Need to actually give the u, v point
                 Some(HitRecord::new(
                     surface_vec,
                     surface_normal_vec,
                     pos_root,
                     ray,
-                    self.material,
+                    self.material.clone(),
+                    u,
+                    v,
                 ))
             } else {
                 None
             }
         }
     }
+
+    fn get_aabb(&self) -> Aabb {
+        self.bounding_box
+    }
+
+    fn clone_box(&self) -> Arc<dyn Hittable> {
+        Arc::new(self.clone())
+    }
+}
+
+pub fn get_sphere_coordinates(point: Point) -> (f64, f64) {
+    let (x, y, z) = point.get_point();
+
+    let phi = x.atan2(-z) + PI;
+    let theta = (-y).acos();
+
+    let u = phi / (2.0 * PI);
+    let v = theta / PI;
+
+    (u, v)
 }

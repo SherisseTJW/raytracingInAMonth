@@ -1,34 +1,49 @@
 use crate::{
     objects::hittable::HitRecord,
     ray::Ray,
-    vector::{Color, Vector, get_random_unit_vector_on_hemisphere},
+    texture::{solid_color::SolidColorTexture, texture::Texture},
+    vector::{Color, Vector, get_random_unit_vector},
 };
+use std::{fmt::Display, sync::Arc};
 
 use super::scatterable::{ScatterRecord, Scatterable};
 
-#[derive(Clone, Copy)]
+#[derive(Clone)]
 pub struct LambertianMaterial {
-    albedo: Color,
+    texture: Arc<dyn Texture>,
 }
 
 impl LambertianMaterial {
-    pub fn new(albedo: Color) -> LambertianMaterial {
-        LambertianMaterial { albedo }
+    pub fn new(texture: Arc<dyn Texture>) -> LambertianMaterial {
+        LambertianMaterial { texture }
     }
 }
 
 impl Scatterable for LambertianMaterial {
     fn scatter(&self, ray: Ray, hit_record: HitRecord) -> Option<ScatterRecord> {
         let surface_normal_vec = hit_record.get_normal();
-        let scatter_ray_direction: Vector =
-            get_random_unit_vector_on_hemisphere(surface_normal_vec).addv(surface_normal_vec);
+        let mut scatter_ray_direction: Vector = get_random_unit_vector().addv(surface_normal_vec);
 
-        let scatter_ray = if scatter_ray_direction.near_zero() {
-            Ray::new(hit_record.get_point(), surface_normal_vec)
-        } else {
-            Ray::new(hit_record.get_point(), scatter_ray_direction)
-        };
+        if scatter_ray_direction.near_zero() {
+            scatter_ray_direction = surface_normal_vec;
+        }
 
-        Some(ScatterRecord::new(scatter_ray, self.albedo))
+        let scatter_ray = Ray::new(
+            hit_record.get_point(),
+            scatter_ray_direction,
+            Some(ray.get_time()),
+        );
+
+        let (u, v) = hit_record.get_texture_coordinates();
+        Some(ScatterRecord::new(
+            scatter_ray,
+            self.texture.get_value(u, v, hit_record.get_point()),
+        ))
+    }
+}
+
+impl Display for LambertianMaterial {
+    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+        write!(f, "LambertianMaterial with Texture: {}", self.texture)
     }
 }

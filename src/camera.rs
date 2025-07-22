@@ -1,13 +1,13 @@
 use image::{Rgb, RgbImage};
 use rayon::ThreadPoolBuilder;
-use rayon::current_thread_index;
 use rayon::prelude::*;
 use std::sync::{
     Arc,
     atomic::{AtomicUsize, Ordering},
 };
 
-use crate::ray;
+use crate::bvh::bvh::BvhNode;
+use crate::materials::emission::Emission;
 use crate::utils::functions::degrees_to_radians;
 use crate::vector::cross_product;
 use crate::vector::get_random_vector_in_unit_disk;
@@ -16,7 +16,7 @@ use crate::{
         Materials,
         scatterable::{ScatterRecord, Scatterable},
     },
-    objects::hittable::{Hittable, HittableList},
+    objects::hittable::Hittable,
     ray::{Ray, blue_gradient_vertical},
     utils::{constants::F_INF, functions::random_double, interval::Interval},
     vector::{Color, Point, Vector},
@@ -27,7 +27,6 @@ pub struct Camera {
     image_width: u32,
     image_height: u32,
 
-    // focal_length: f64,
     vertical_fov: f64,
 
     // NOTE: Unit basis vectors for camera coordinate frame
@@ -50,6 +49,8 @@ pub struct Camera {
 
     samples_per_pixel: u32,
     max_depth: u32,
+
+    background: Color,
 }
 
 impl Camera {
@@ -65,6 +66,7 @@ impl Camera {
         let focus_dist = self.focus_dist;
         let defocus_disk_u = self.defocus_disk_u;
         let defocus_disk_v = self.defocus_disk_v;
+        let background = self.background;
 
         let image_height: u32 = (image_width as f64 / aspect_ratio) as u32;
 
@@ -114,6 +116,8 @@ impl Camera {
 
             samples_per_pixel,
             max_depth,
+
+            background,
         }
     }
 
@@ -131,6 +135,7 @@ impl Camera {
         let image_height = self.image_height;
         let samples_per_pixel = self.samples_per_pixel;
         let max_depth = self.max_depth;
+        let background = self.background;
 
         let w = look_from.subv(look_at).unit();
         let u = cross_product(v_up, w).unit();
@@ -187,6 +192,8 @@ impl Camera {
 
             samples_per_pixel,
             max_depth,
+
+            background,
         }
     }
 
@@ -208,6 +215,7 @@ impl Camera {
         let focus_dist = self.focus_dist;
         let defocus_disk_u = self.defocus_disk_u;
         let defocus_disk_v = self.defocus_disk_v;
+        let background = self.background;
 
         Camera {
             aspect_ratio,
@@ -235,10 +243,16 @@ impl Camera {
 
             samples_per_pixel,
             max_depth,
+
+            background,
         }
     }
 
-    pub fn render(&self, world: HittableList) {
+    pub fn set_background(&mut self, background: Color) {
+        self.background = background;
+    }
+
+    pub fn render(&self, world: BvhNode) {
         ThreadPoolBuilder::new()
             .num_threads(6)
             .build_global()
@@ -253,7 +267,7 @@ impl Camera {
 
                 for _ in 0..self.samples_per_pixel {
                     let ray = self.get_ray(i, j);
-                    let color = Camera::ray_color(ray, &world, self.max_depth);
+                    let color = self.ray_color(ray, &world, self.max_depth);
                     pixel_color = pixel_color.addv(color);
                 }
 
@@ -285,15 +299,19 @@ impl Camera {
             .addv(self.pixel_delta_u.scale(j as f64 + offset_x))
             .addv(self.pixel_delta_v.scale(i as f64 + offset_y));
 
-        let ray_origin = if self.defocus_angle <= 0.0 {
-            self.centre
-        } else {
-            self.defocus_disk_sample()
-        };
+        let ray_origin = self.centre;
+
+        // NOTE: For defocus stuff
+        // let ray_origin = if self.defocus_angle <= 0.0 {
+        //     self.centre
+        // } else {
+        //     self.defocus_disk_sample()
+        // };
 
         let ray_direction = sample_pixel_centre.subv(ray_origin);
+        let ray_time = random_double();
 
-        Ray::new(ray_origin, ray_direction)
+        Ray::new(ray_origin, ray_direction, Some(ray_time))
     }
 
     fn defocus_disk_sample(&self) -> Point {
@@ -309,9 +327,9 @@ impl Camera {
         Vector::new(random_double() - 0.5, random_double() - 0.5, 0.0)
     }
 
-    fn ray_color(ray: Ray, world: &HittableList, depth: u32) -> Color {
+    fn ray_color(&self, ray: Ray, world: &BvhNode, depth: u32) -> Color {
         if depth == 0 {
-            Color::new(0.0, 0.0, 0.0)
+            self.background
         } else {
             let world_interval: Interval = Interval::new(0.001, F_INF);
             let hit_record = world.hit(&ray, &world_interval);
@@ -319,15 +337,20 @@ impl Camera {
             match hit_record {
                 Some(hit) => {
                     let material: Materials = hit.get_material();
-                    let scatter_record: Option<ScatterRecord> = material.scatter(ray, hit);
+                    let (u, v) = hit.get_texture_coordinates();
+                    let hit_point = hit.get_point();
 
-                    match scatter_record {
-                        Some(scatter) => Camera::ray_color(scatter.get_ray(), world, depth - 1)
-                            .multiply(scatter.get_attenuation()),
-                        None => Color::new(0.0, 0.0, 0.0),
+                    let emission_color = material.emit(u, v, hit_point);
+
+                    match material.scatter(ray, hit) {
+                        Some(scatter) => self
+                            .ray_color(scatter.get_ray(), world, depth - 1)
+                            .multiply(scatter.get_attenuation())
+                            .addv(emission_color),
+                        None => emission_color,
                     }
                 }
-                None => blue_gradient_vertical(ray),
+                None => self.background,
             }
         }
     }
@@ -354,7 +377,7 @@ impl Default for Camera {
         let height: f64 = f64::tan(theta_rad / 2.0);
 
         let defocus_angle = 0.0;
-        let focus_dist = 2.0;
+        let focus_dist = 10.0;
 
         let defocus_radius: f64 = focus_dist * f64::tan(degrees_to_radians(defocus_angle / 2.0));
         let defocus_disk_u: Vector = u.scale(defocus_radius);
@@ -380,6 +403,9 @@ impl Default for Camera {
 
         let samples_per_pixel: u32 = 250;
         let max_depth: u32 = 50;
+
+        // NOTE: By default, give a flat blue 'sky' background
+        let background = Color::new(0.7, 0.8, 1.0);
 
         Camera {
             aspect_ratio,
@@ -407,6 +433,8 @@ impl Default for Camera {
 
             samples_per_pixel,
             max_depth,
+
+            background,
         }
     }
 }

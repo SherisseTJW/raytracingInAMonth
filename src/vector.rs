@@ -17,16 +17,18 @@ impl Vector {
         Vector { x, y, z }
     }
 
-    // pub fn get_random_vector(self, min: f64, max: f64) -> Vector {
-    //     Vector {
-    //         x: random_double_in_range(min, max),
-    //         y: random_double_in_range(min, max),
-    //         z: random_double_in_range(min, max),
-    //     }
-    // }
-
     pub fn get_point(self) -> (f64, f64, f64) {
         (self.x, self.y, self.z)
+    }
+
+    pub fn get_point_by_axis(self, axis: i8) -> f64 {
+        if axis == 0 {
+            self.x
+        } else if axis == 1 {
+            self.y
+        } else {
+            self.z
+        }
     }
 
     pub fn get_length_squared(self) -> f64 {
@@ -135,12 +137,6 @@ impl Vector {
     }
 }
 
-impl Display for Vector {
-    fn fmt(&self, f: &mut Formatter) -> Result {
-        write!(f, "({}, {}, {})", self.x, self.y, self.z)
-    }
-}
-
 pub fn cross_product(u: Vector, v: Vector) -> Vector {
     let (u1, u2, u3) = u.get_point();
     let (v1, v2, v3) = v.get_point();
@@ -170,13 +166,21 @@ pub fn get_random_unit_vector() -> Vector {
             random_double_in_range(-1.0, 1.0),
             random_double_in_range(-1.0, 1.0),
         );
-        // let cur_vector = self.get_random_vector(-1.0, 1.0);
+
         let length_squared = cur_vector.get_length_squared();
 
-        if length_squared <= 1.0 && length_squared > 1e-160 {
+        if length_squared <= 1.0 && length_squared > 1e-160_f64 {
             break cur_vector.scale(1.0 / length_squared.sqrt());
         }
     }
+}
+
+pub fn get_random_unit_vector_in_range(min: f64, max: f64) -> Vector {
+    Vector::new(
+        random_double_in_range(min, max),
+        random_double_in_range(min, max),
+        random_double_in_range(min, max),
+    )
 }
 
 pub fn get_random_unit_vector_on_hemisphere(normal: Vector) -> Vector {
@@ -216,4 +220,14 @@ pub fn refract(r: Vector, normal: Vector, etai_over_etat: f64) -> Vector {
     let r_out_para: Vector = normal.scale(-f64::abs(1.0 - r_out_perp.get_length_squared()).sqrt());
 
     r_out_perp.addv(r_out_para)
+}
+
+impl Display for Vector {
+    fn fmt(&self, f: &mut Formatter<'_>) -> Result {
+        write!(
+            f,
+            "Vector / Point (x, y, z) OR Color (r, g, b) : ({}, {}, {})",
+            self.x, self.y, self.z
+        )
+    }
 }
