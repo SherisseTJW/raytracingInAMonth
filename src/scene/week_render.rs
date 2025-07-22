@@ -28,6 +28,18 @@ use crate::{
 pub fn week_scene() -> Scene {
     let mut hittable_list: HittableList = HittableList::new();
 
+    // NOTE: DO NOT COMMENT THIS OUT
+    let light_material = Materials::Diffuse(DiffuseLightMaterial::new(Arc::new(
+        SolidColorTexture::new_from_rgb(7.0, 7.0, 7.0),
+    )));
+    let light_source: Quad = Quad::new(
+        Point::new(123.0, 554.0, 147.0),
+        Vector::new(300.0, 0.0, 0.0),
+        Vector::new(0.0, 0.0, 265.0),
+        light_material,
+    );
+    hittable_list.add_hittable(Arc::new(light_source));
+
     let ground_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
         SolidColorTexture::new_from_rgb(0.48, 0.83, 0.53),
     )));
@@ -40,7 +52,7 @@ pub fn week_scene() -> Scene {
         for j in 0..boxes_per_side {
             let x0 = -900.0 + (i as f64 * w);
             let y0 = -100.0;
-            let z0 = 0.0 + (j as f64 * w);
+            let z0 = -100.0 + (j as f64 * w);
 
             let x1 = x0 + w;
             let y1 = random_double_in_range(-50.0, 51.0);
@@ -54,17 +66,6 @@ pub fn week_scene() -> Scene {
             hittable_list.add_hittable_list(ground_box.to_hittable_list());
         }
     }
-
-    let light_material = Materials::Diffuse(DiffuseLightMaterial::new(Arc::new(
-        SolidColorTexture::new_from_rgb(7.0, 7.0, 7.0),
-    )));
-    let light_source: Quad = Quad::new(
-        Point::new(123.0, 554.0, 147.0),
-        Vector::new(300.0, 0.0, 0.0),
-        Vector::new(0.0, 0.0, 265.0),
-        light_material,
-    );
-    hittable_list.add_hittable(Arc::new(light_source));
 
     let centre_material = Materials::Lambertian(LambertianMaterial::new(Arc::new(
         SolidColorTexture::new_from_rgb(0.7, 0.3, 0.1),
@@ -114,7 +115,7 @@ pub fn week_scene() -> Scene {
 
         floating_spheres_list.add_hittable(Arc::new(cur_sphere));
     }
-    let rotated_spheres = Rotation::new(Arc::new(floating_spheres_list), 0.0, 15.0, 0.0);
+    let rotated_spheres = Rotation::new(Arc::new(floating_spheres_list), 0.0, 25.0, 0.0);
     hittable_list.add_hittable(Arc::new(rotated_spheres));
 
     // Camera Settings
@@ -122,7 +123,7 @@ pub fn week_scene() -> Scene {
     camera = camera.override_image_specs(1.0, 800);
     camera = camera.override_camera_pos(
         Point::new(478.0, 278.0, -600.0),
-        Point::new(278.0, 278.0, 0.0),
+        Point::new(278.0, 250.0, 0.0),
         Vector::new(0.0, 1.0, 0.0),
         40.0,
         0.0,
